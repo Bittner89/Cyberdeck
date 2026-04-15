@@ -1,0 +1,3 @@
+"Bei der Initialisierung von Tailwind CSS traten Probleme mit dem Befehl npx in der Windows-Umgebung (Git Bash) auf. Die automatische Generierung der Konfigurationsdateien schlug fehl, weshalb die tailwind.config.js und postcss.config.js manuell erstellt wurden, um den Build-Prozess fortzusetzen."
+
+"Aufgrund des Updates auf Tailwind CSS v4 wurde die PostCSS-Konfiguration auf das neue Paket @tailwindcss/postcss umgestellt, um die Kompatibilität mit dem Vite-Build-Tool sicherzustellen."
