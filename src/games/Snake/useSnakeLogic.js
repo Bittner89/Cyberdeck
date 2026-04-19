@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { scoreService } from '../../services/scoreService';
 import { audioService } from '../../services/audioService';
 
@@ -12,8 +12,12 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
   const [score, setScore] = useState(0);
   const [highscore, setHighscore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
-  const [isNewRecord, setIsNewRecord] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
+
+  const lastProcessedDirection = useRef({ x: gridSize, y: 0 });
+  const lastUpdateTime = useRef(0);
+  // SPEED: Je niedriger die Zahl, desto schneller (80ms ist sehr flüssig)
+  const gameSpeed = 85; 
 
   useEffect(() => {
     scoreService.getHighscore().then(setHighscore);
@@ -28,31 +32,17 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
     };
   }, [canvasWidth, canvasHeight, gridSize]);
 
-  useEffect(() => {
-    if (gameOver) {
-      audioService.stopMusic();
-      audioService.playFX('crash');
-      scoreService.saveScore(score).then(wasNewRecord => {
-        if (wasNewRecord) {
-          setIsNewRecord(true);
-          setHighscore(score);
-        }
-      });
-    }
-  }, [gameOver, score]);
-
+  // Die eigentliche Bewegungs-Logik (unverändert, aber optimiert aufgerufen)
   const moveSnake = useCallback(() => {
-    if (gameOver || isPaused) return;
-
     setSnake((prevSnake) => {
       const head = { x: prevSnake[0].x + direction.x, y: prevSnake[0].y + direction.y };
+      lastProcessedDirection.current = direction;
 
-      if (head.x < 0 || head.x >= canvasWidth || head.y < 0 || head.y >= canvasHeight) {
+      if (head.x < 0 || head.x >= canvasWidth || head.y < 0 || head.y >= canvasHeight ||
+          prevSnake.some(p => p.x === head.x && p.y === head.y)) {
         setGameOver(true);
-        return prevSnake;
-      }
-      if (prevSnake.some(p => p.x === head.x && p.y === head.y)) {
-        setGameOver(true);
+        audioService.stopMusic();
+        audioService.playFX('crash');
         return prevSnake;
       }
 
@@ -66,15 +56,38 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
       }
       return newSnake;
     });
-  }, [direction, food, gameOver, isPaused, createFood, canvasWidth, canvasHeight, gridSize]);
+  }, [direction, food, canvasWidth, canvasHeight, gridSize, createFood]);
 
+  // High-Performance Game Loop
   useEffect(() => {
-    const interval = setInterval(moveSnake, 100);
-    return () => clearInterval(interval);
-  }, [moveSnake]);
+    let requestRef;
+
+    const animate = (time) => {
+      if (!gameOver && !isPaused) {
+        const deltaTime = time - lastUpdateTime.current;
+
+        if (deltaTime > gameSpeed) {
+          moveSnake();
+          lastUpdateTime.current = time;
+        }
+      }
+      requestRef = requestAnimationFrame(animate);
+    };
+
+    requestRef = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef);
+  }, [moveSnake, gameOver, isPaused]);
+
+  const setSafeDirection = useCallback((newDir) => {
+    const isOpposite = 
+      (newDir.x !== 0 && newDir.x === -lastProcessedDirection.current.x) ||
+      (newDir.y !== 0 && newDir.y === -lastProcessedDirection.current.y);
+
+    if (!isOpposite) setDirection(newDir);
+  }, []);
 
   return { 
-    snake, food, score, highscore, gameOver, isNewRecord, 
-    setDirection, gridSize, isPaused, setIsPaused 
+    snake, food, score, highscore, gameOver, 
+    setDirection: setSafeDirection, gridSize, isPaused, setIsPaused 
   };
 }
