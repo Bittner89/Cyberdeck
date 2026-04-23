@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { scoreService } from '../../services/scoreService';
 import { audioService } from '../../services/audioService';
 
-export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
-  // Initialwerte als Konstanten, damit wir sie beim Reset leicht wiederverwenden können
+export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOver) {
   const initialSnake = [
     { x: gridSize * 5, y: gridSize * 5 }, 
     { x: gridSize * 4, y: gridSize * 5 }
@@ -22,7 +21,20 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
   const lastUpdateTime = useRef(0);
   const gameSpeed = 85; 
 
-  // RESET FUNKTION
+  // Initialisiere Highscore aus Service
+  useEffect(() => {
+    scoreService.getHighscores().then(scores => {
+      if (scores.length > 0) setHighscore(scores[0].score);
+    });
+  }, []);
+
+  // Melde Game Over an die App.jsx
+  useEffect(() => {
+    if (gameOver && onGameOver) {
+      onGameOver(score);
+    }
+  }, [gameOver, score, onGameOver]);
+
   const resetGame = useCallback(() => {
     setSnake(initialSnake);
     setDirection(initialDir);
@@ -30,27 +42,20 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
     setFood({ x: gridSize * 10, y: gridSize * 10 });
     setScore(0);
     setGameOver(false);
-    setIsPaused(false); // Direkt loslegen nach Neustart
+    setIsPaused(false);
     audioService.startMusic();
   }, [gridSize]);
 
-  useEffect(() => {
-    scoreService.getHighscore().then(setHighscore);
-  }, []);
-
   const createFood = useCallback(() => {
-    const cols = Math.floor(canvasWidth / gridSize);
-    const rows = Math.floor(canvasHeight / gridSize);
-    return {
-      x: Math.floor(Math.random() * cols) * gridSize,
-      y: Math.floor(Math.random() * rows) * gridSize,
-    };
+    const x = Math.floor(Math.random() * (canvasWidth / gridSize)) * gridSize;
+    const y = Math.floor(Math.random() * (canvasHeight / gridSize)) * gridSize;
+    return { x, y };
   }, [canvasWidth, canvasHeight, gridSize]);
 
   const moveSnake = useCallback(() => {
     if (gameOver || isPaused) return;
 
-    setSnake((prevSnake) => {
+    setSnake(prevSnake => {
       const head = { x: prevSnake[0].x + direction.x, y: prevSnake[0].y + direction.y };
       lastProcessedDirection.current = direction;
 
@@ -94,6 +99,7 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
     const isOpposite = 
       (newDir.x !== 0 && newDir.x === -lastProcessedDirection.current.x) ||
       (newDir.y !== 0 && newDir.y === -lastProcessedDirection.current.y);
+    
     if (!isOpposite) setDirection(newDir);
   }, []);
 

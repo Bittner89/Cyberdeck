@@ -1,25 +1,54 @@
-/**
- * Dieser Service kapselt den Zugriff auf die Highscores.
- * Aktuell nutzt er den LocalStorage, kann aber später 
- * einfach auf eine AWS Lambda / Datenbank umgestellt werden.
- */
-const SCORE_KEY = 'cyberdeck_snake_highscore';
+const LOCAL_STORAGE_KEY = 'cyberdeck_snake_highscores';
 
-export const scoreService = {
-  // Holt den Highscore
-  async getHighscore() {
-    // Später: return fetch('/api/highscore').then(r => r.json());
-    const saved = localStorage.getItem(SCORE_KEY);
-    return saved ? parseInt(saved, 10) : 0;
-  },
-
-  // Speichert einen neuen Score, wenn er höher ist als der alte
-  async saveScore(newScore) {
-    const currentHighscore = await this.getHighscore();
-    if (newScore > currentHighscore) {
-      localStorage.setItem(SCORE_KEY, newScore.toString());
-      return true; // Neuer Rekord
+class ScoreService {
+  /**
+   * GLOBAL: Holt alle Einträge (von jedem)
+   */
+  async getHighscores() {
+    try {
+      const scores = localStorage.getItem(LOCAL_STORAGE_KEY);
+      return scores ? JSON.parse(scores).sort((a, b) => b.score - a.score) : [];
+    } catch (error) {
+      console.error("Fehler beim Laden der Scores:", error);
+      return [];
     }
-    return false;
   }
-};
+
+  /**
+   * PERSONAL: Filtert die globalen Scores nach dem Usernamen
+   */
+  async getMyHighscores(username) {
+    if (!username) return [];
+    const allScores = await this.getHighscores();
+    // Filtert alle Einträge, die dem aktuell eingeloggten Namen entsprechen
+    return allScores.filter(s => s.username.toLowerCase() === username.toLowerCase());
+  }
+
+  /**
+   * Speichert einen neuen Score
+   */
+  async saveScore(username, score) {
+    const newEntry = {
+      id: Date.now().toString(),
+      username: username || 'GHOST',
+      score: score,
+      date: new Date().toISOString()
+    };
+
+    try {
+      const currentScores = await this.getHighscores();
+      currentScores.push(newEntry);
+      
+      // Wir speichern die Top 100, damit man in der persönlichen Liste auch ältere Scores sieht
+      const sortedScores = currentScores.sort((a, b) => b.score - a.score).slice(0, 100);
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortedScores));
+      return sortedScores;
+    } catch (error) {
+      console.error("Fehler beim Speichern des Scores:", error);
+      return [];
+    }
+  }
+}
+
+export const scoreService = new ScoreService();
