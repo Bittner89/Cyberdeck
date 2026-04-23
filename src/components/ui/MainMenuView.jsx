@@ -1,88 +1,70 @@
 import React from 'react';
 
-const GAMES = [
-  {
-    id: 'snake',
-    title: 'SNAKE_EXE',
-    description: 'Neural-Link Speed Test. Collect data fragments without terminal collision.',
-    difficulty: 'LOW',
-    status: 'STABLE'
-  },
-  {
-    id: 'tetris',
-    title: 'TETRIS_EXE',
-    description: 'Structural Integrity Protocol. Optimize data blocks in real-time.',
-    difficulty: 'MEDIUM',
-    status: 'ENCRYPTED' // Zeigt an, dass es noch nicht spielbar ist
-  }
-];
+export default function MainMenuView({ user, activeIndex, onStartGame }) {
+  const options = [
+    { id: 'snake', label: 'NEURAL_SNAKE', desc: 'Hack into the grid. Collect data fragments.' },
+    { id: 'leaderboard', label: 'GLOBAL_ARCHIVE', desc: 'See who currently dominates the net.' }
+  ];
 
-export default function MainMenuView({ user, onStartGame, activeIndex }) {
   return (
-    <div className="flex-1 flex flex-col p-10 font-vt323 text-neon-cyan max-w-5xl">
-      {/* HEADER: Begrüßung */}
-      <header className="mb-12 border-l-4 border-neon-cyan pl-6 animate-fade-in">
-        <h2 className="text-xl opacity-50 tracking-[0.3em] uppercase">Dashboard_Home</h2>
-        <h1 className="text-6xl text-glow uppercase italic">
-          {user ? `Welcome_Back, ${user}` : "Access_Authorized: Guest"}
+    <div className="w-full max-w-3xl animate-glitch-entry p-4 font-vt323">
+      {/* WELCOME SECTION - CLEAN & OHNE HINTERGRUND-BOX */}
+      <div className="mb-16 border-l-4 border-neon-pink pl-8 py-2">
+        <h1 className="text-6xl text-white tracking-tighter italic leading-none">
+          WELCOME, <span className="text-neon-pink [text-shadow:_0_0_15px_rgba(255,0,255,0.8)] uppercase">AGENT_{user || 'UNKNOWN'}</span>
         </h1>
-        <p className="mt-2 text-white/40 tracking-widest italic">
-           System_Uptime: 99.9% | Connection: Secured_Neural_Link
-        </p>
-      </header>
-
-      {/* GRID: Spiele-Übersicht */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {GAMES.map((game, index) => {
-          const isFocused = activeIndex === index; // Für Tastatur-Nav
-          const isLocked = game.status === 'ENCRYPTED';
-
-          return (
-            <div 
-              key={game.id}
-              onClick={() => !isLocked && onStartGame(game.id)}
-              className={`
-                relative p-6 border-2 transition-all cursor-pointer group
-                ${isFocused ? 'border-white bg-white/10 scale-[1.02]' : 'border-neon-cyan/20 bg-black'}
-                ${isLocked ? 'opacity-40 grayscale cursor-not-allowed' : 'hover:border-neon-cyan hover:bg-neon-cyan/5'}
-              `}
-            >
-              {/* Fokus-Indikator */}
-              {isFocused && (
-                <div className="absolute -top-2 -left-2 bg-white text-black px-2 py-0.5 text-xs font-bold animate-pulse">
-                  ACTIVE_SELECTION
-                </div>
-              )}
-
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-3xl tracking-tighter group-hover:text-glow">{game.title}</h3>
-                <span className={`px-2 py-1 text-xs border ${game.status === 'STABLE' ? 'border-neon-cyan' : 'border-neon-pink'}`}>
-                  {game.status}
-                </span>
-              </div>
-
-              <p className="text-white/60 mb-6 h-12 italic leading-tight">
-                {game.description}
-              </p>
-
-              <div className="flex justify-between items-end text-sm opacity-50 uppercase">
-                <span>Diff: {game.difficulty}</span>
-                <span>[ Press Enter ]</span>
-              </div>
-
-              {/* Dekorative Elemente */}
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-neon-cyan/30 group-hover:border-neon-cyan"></div>
-            </div>
-          );
-        })}
+        <div className="flex items-center gap-2 mt-4">
+          <span className="w-2 h-2 bg-neon-cyan animate-pulse"></span>
+          <p className="text-neon-cyan/60 text-xl tracking-[0.3em] uppercase">
+            System_Ready // Connection_Stable
+          </p>
+        </div>
       </div>
 
-      {/* FOOTER: System Status */}
-      <footer className="mt-auto pt-10 flex justify-between text-[10px] opacity-30 uppercase tracking-[0.2em]">
-        <span>Hardware: Nexus_XL_800</span>
-        <span>Environment: Production_Build_2026</span>
-        <span>Region: Sector_G_North</span>
-      </footer>
+      {/* DASHBOARD OPTIONS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {options.map((opt, i) => (
+          <div 
+            key={opt.id}
+            onClick={() => onStartGame(opt.id)}
+            className={`cursor-pointer p-8 border-2 transition-all duration-300 group relative ${
+              activeIndex === i 
+                ? 'border-neon-cyan bg-transparent translate-x-2' 
+                : 'border-neon-cyan/10 hover:border-neon-cyan/30 bg-transparent'
+            }`}
+          >
+            {/* Aktiver Indikator Balken auf der linken Seite */}
+            {activeIndex === i && (
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-neon-cyan shadow-[0_0_15px_rgba(0,243,255,0.8)]"></div>
+            )}
+
+            <div className="flex justify-between items-start mb-6">
+              <span className={`text-4xl ${activeIndex === i ? 'text-neon-cyan [text-shadow:_0_0_10px_rgba(0,243,255,0.5)]' : 'text-neon-cyan/20'}`}>
+                {i === 0 ? '▰' : '▱'}
+              </span>
+              {activeIndex === i && (
+                <span className="text-neon-cyan animate-ping text-xs">●</span>
+              )}
+            </div>
+
+            <h3 className={`text-3xl mb-3 tracking-widest transition-colors ${
+              activeIndex === i ? 'text-white' : 'text-neon-cyan/40'
+            }`}>
+              {opt.label}
+            </h3>
+            
+            <p className="text-sm text-neon-cyan/40 leading-relaxed uppercase tracking-tighter max-w-[200px]">
+              {opt.desc}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* SYSTEM DECORATION FOOTER */}
+      <div className="mt-12 pt-4 border-t border-neon-cyan/10 flex justify-between items-center text-[10px] text-neon-cyan/20 uppercase tracking-[0.5em]">
+        <span>Sector_01 // Neural_Link_Active</span>
+        <span className="animate-pulse italic">Access_Level: Administrator</span>
+      </div>
     </div>
   );
 }
