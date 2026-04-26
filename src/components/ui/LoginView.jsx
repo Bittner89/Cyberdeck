@@ -28,8 +28,8 @@ export default function LoginView({ onLoginSuccess }) {
         setErrorMsg("INVALID_IDENTITY: Agent Name must be at least 3 chars.");
         return;
       }
-      if (password.length < 8) {
-        setErrorMsg("SECURITY_BREACH: Password too short (min 8).");
+      if (password.length < 6) { // Supabase braucht min. 6
+        setErrorMsg("SECURITY_BREACH: Password too short (min 6).");
         return;
       }
       if (password !== confirmPassword) {
@@ -43,16 +43,17 @@ export default function LoginView({ onLoginSuccess }) {
     try {
       let userData;
       if (mode === "register") {
-        // Wir speichern den Usernamen zur Sicherheit intern trotzdem Groß, 
-        // aber das Passwort bleibt genau so, wie es getippt wurde!
-        userData = await authService.register(email, username);
+        // WICHTIG: Email, Passwort UND Username übergeben
+        userData = await authService.register(email, password, username);
         setSuccessMsg("IDENTITY_CREATED: Welcome Agent " + username.toUpperCase());
         setTimeout(() => onLoginSuccess(userData.name), 1500);
       } else if (mode === "login") {
-        userData = await authService.login(email);
+        // WICHTIG: Hier fehlte das password!
+        userData = await authService.login(email, password);
         onLoginSuccess(userData.name);
       }
     } catch (err) {
+      // Fehlermeldung vom Server anzeigen
       setErrorMsg(err.message.toUpperCase());
     } finally {
       setLoading(false);
@@ -60,11 +61,10 @@ export default function LoginView({ onLoginSuccess }) {
   };
 
   return (
-    <div className="w-full max-w-md p-8 bg-black border-2 border-neon-cyan shadow-neon-big animate-glitch-entry font-vt323">
+    <div className="w-full max-w-md p-8 bg-black border-2 border-neon-cyan shadow-neon-big animate-glitch-entry font-vt323 relative z-20">
       <div className="text-center mb-10">
-        {/* Überschriften bleiben UPPERCASE für den Style */}
         <h2 className="text-4xl text-neon-cyan mb-2 tracking-[0.3em] shadow-neon uppercase">
-          {mode === "login" ? "ESTABLISH_LINK" : mode === "register" ? "GENERATE_ID" : "RECOVER_ACCESS"}
+          {mode === "login" ? "ESTABLISH_LINK" : "GENERATE_ID"}
         </h2>
         <div className="h-0.5 w-full bg-neon-cyan/20"></div>
       </div>
@@ -75,11 +75,11 @@ export default function LoginView({ onLoginSuccess }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Email Field - KEIN UPPERCASE */}
         <div className="space-y-1">
           <label className="text-neon-cyan/50 text-[10px] uppercase tracking-widest ml-1">Agent_Email</label>
           <input
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
@@ -88,7 +88,6 @@ export default function LoginView({ onLoginSuccess }) {
           />
         </div>
 
-        {/* Username Field - NUR BEI REGISTRIERUNG - Hier lassen wir uppercase, weil es der Anzeigename ist */}
         {mode === "register" && (
           <div className="space-y-1 animate-fade-in">
             <label className="text-neon-cyan/50 text-[10px] uppercase tracking-widest ml-1">Choose_Agent_Name</label>
@@ -103,16 +102,16 @@ export default function LoginView({ onLoginSuccess }) {
           </div>
         )}
 
-        {/* Password Field - KEIN UPPERCASE (WICHTIG!) */}
         <div className="space-y-1">
           <label className="text-neon-cyan/50 text-[10px] uppercase tracking-widest ml-1">Access_Code</label>
           <input
             type="password"
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
             className="w-full bg-neon-cyan/5 border-b border-neon-cyan/30 p-2 text-xl text-white outline-none focus:border-neon-pink transition-all"
-            placeholder="password_secure"
+            placeholder="********"
           />
         </div>
 
@@ -121,11 +120,12 @@ export default function LoginView({ onLoginSuccess }) {
             <label className="text-neon-pink/50 text-[10px] uppercase tracking-widest ml-1">Confirm_Code</label>
             <input
               type="password"
+              autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={loading}
               className="w-full bg-neon-cyan/5 border-b border-neon-pink/30 p-2 text-xl text-white outline-none focus:border-neon-pink transition-all"
-              placeholder="password_secure"
+              placeholder="********"
             />
           </div>
         )}

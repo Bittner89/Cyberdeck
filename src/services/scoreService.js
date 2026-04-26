@@ -1,51 +1,77 @@
-const LOCAL_STORAGE_KEY = 'cyberdeck_snake_highscores';
+import { supabase } from '../lib/supabase';
 
 class ScoreService {
   /**
-   * GLOBAL: Holt alle Einträge (von jedem)
+   * Speichert einen Score. 
+   * Dank der RLS-Regel "Authenticated_Users_Can_Insert" lässt Supabase 
+   * diesen Request nur durch, wenn der User aktuell eingeloggt ist.
    */
-  async getHighscores() {
+  async saveScore(username, score, gameName = 'snake') {
+    if (!username) {
+      console.error("SCORE_REJECTED: No active agent identity found.");
+      return null;
+    }
+
     try {
-      const scores = localStorage.getItem(LOCAL_STORAGE_KEY);
-      return scores ? JSON.parse(scores).sort((a, b) => b.score - a.score) : [];
-    } catch (error) {
-      console.error("Fehler beim Laden der Scores:", error);
+      const { data, error } = await supabase
+        .from('highscores')
+        .insert([
+          { 
+            username: username.toUpperCase(), 
+            score: parseInt(score), 
+            game_name: gameName 
+          }
+        ]);
+
+      if (error) {
+        // Wenn hier ein 403 kommt, ist der User nicht korrekt eingeloggt
+        throw new Error(`DATABASE_REJECTION: ${error.message}`);
+      }
+      return data;
+    } catch (err) {
+      console.error("Critical Error saving score:", err.message);
+      return null;
+    }
+  }
+
+  /**
+   * Holt das globale Leaderboard.
+   * Jeder (auch Gäste im Leaderboard-Tab) darf das lesen.
+   */
+  async getHighscores(gameName = 'snake', limit = 10) {
+    try {
+      const { data, error } = await supabase
+        .from('highscores')
+        .select('*')
+        .eq('game_name', gameName)
+        .order('score', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error("Error fetching global scores:", err.message);
       return [];
     }
   }
 
   /**
-   * PERSONAL: Filtert die globalen Scores nach dem Usernamen
+   * Holt nur die Scores des angemeldeten Users.
    */
-  async getMyHighscores(username) {
+  async getMyHighscores(username, gameName = 'snake') {
     if (!username) return [];
-    const allScores = await this.getHighscores();
-    // Filtert alle Einträge, die dem aktuell eingeloggten Namen entsprechen
-    return allScores.filter(s => s.username.toLowerCase() === username.toLowerCase());
-  }
-
-  /**
-   * Speichert einen neuen Score
-   */
-  async saveScore(username, score) {
-    const newEntry = {
-      id: Date.now().toString(),
-      username: username || 'GHOST',
-      score: score,
-      date: new Date().toISOString()
-    };
-
     try {
-      const currentScores = await this.getHighscores();
-      currentScores.push(newEntry);
-      
-      // Wir speichern die Top 100, damit man in der persönlichen Liste auch ältere Scores sieht
-      const sortedScores = currentScores.sort((a, b) => b.score - a.score).slice(0, 100);
+      const { data, error } = await supabase
+        .from('highscores')
+        .select('*')
+        .eq('game_name', gameName)
+        .eq('username', username.toUpperCase())
+        .order('score', { ascending: false });
 
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(sortedScores));
-      return sortedScores;
-    } catch (error) {
-      console.error("Fehler beim Speichern des Scores:", error);
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error("Error fetching personal scores:", err.message);
       return [];
     }
   }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import SnakeGame from './games/Snake/SnakeGame';
+import TetrisGame from './games/Tetris/TetrisGame'; 
 import MainMenuView from './components/ui/MainMenuView';
 import LoginView from './components/ui/LoginView';
 import LeaderboardView from './components/ui/LeaderboardView';
@@ -12,27 +13,28 @@ import './styles/effects.css';
 
 function App() {
   const [user, setUser] = useState(null);
-  const [currentView, setCurrentView] = useState('login'); // Startet immer im Login
+  const [currentView, setCurrentView] = useState('login');
   
   const [volume, setVolume] = useState((audioService.masterVolume || 0.12) * 100);
   const [isMuted, setIsMuted] = useState(audioService.isMuted);
   
-  const menuOrder = ['menu', 'snake', 'leaderboard', 'settings'];
+  const menuOrder = ['menu', 'snake', 'tetris', 'leaderboard', 'settings'];
   const [sidebarIndex, setSidebarIndex] = useState(0);
-  const [dashboardIndex, setDashboardIndex] = useState(0);
 
-  // Prüfen ob User bereits eingeloggt ist
+  // User beim Start aus dem Speicher laden
   useEffect(() => {
     const savedUser = authService.getCurrentUser();
     if (savedUser) {
       setUser(savedUser.name);
       setCurrentView('menu');
+      setSidebarIndex(0);
     }
   }, []);
 
   const handleLoginSuccess = (userName) => {
     setUser(userName);
     setCurrentView('menu');
+    setSidebarIndex(0);
     audioService.playFX('confirm');
   };
 
@@ -42,16 +44,35 @@ function App() {
     setCurrentView('login');
   };
 
+  // Erkennt automatisch welches Spiel beendet wurde
   const handleGameOver = async (finalScore) => {
-    await scoreService.saveScore(user, finalScore);
+    if (!user) {
+      console.warn("ACCESS_DENIED: No agent identity for score sync.");
+      setCurrentView('leaderboard');
+      return;
+    }
+    
+    // Speichert den Score basierend auf der aktuellen Ansicht
+    const gameType = currentView; // 'snake' oder 'tetris'
+    await scoreService.saveScore(user, finalScore, gameType);
+    
+    // Nach Speicherung zum Leaderboard wechseln
     setCurrentView('leaderboard'); 
+    setSidebarIndex(menuOrder.indexOf('leaderboard'));
   };
 
-  // ... (Keyboard-Handler bleibt gleich, nur Login-View Check einbauen)
+  // Hilfsfunktion für den Wechsel aus dem Hauptmenü (inkl. Sidebar-Sync)
+  const navigateFromMenu = (view) => {
+    setCurrentView(view);
+    const index = menuOrder.indexOf(view);
+    if (index !== -1) setSidebarIndex(index);
+    audioService.playFX('confirm');
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (currentView === 'snake' || currentView === 'login') return;
-      // ... Rest der Navigation wie gehabt
+      if (currentView === 'snake' || currentView === 'tetris' || currentView === 'login') return;
+
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         setSidebarIndex((prev) => (prev + 1) % menuOrder.length);
@@ -62,7 +83,8 @@ function App() {
         audioService.playFX('select');
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        setCurrentView(menuOrder[sidebarIndex]);
+        const targetView = menuOrder[sidebarIndex];
+        setCurrentView(targetView);
         audioService.playFX('confirm');
       }
     };
@@ -75,7 +97,6 @@ function App() {
       <div className="w-full h-full crt-frame flex flex-col md:flex-row relative">
         <div className="crt-overlay" /><div className="crt-vignette" /><div className="scanline" />
 
-        {/* Sidebar nur anzeigen wenn User eingeloggt ist */}
         {user && (
           <Sidebar 
             currentView={currentView} 
@@ -99,13 +120,16 @@ function App() {
         )}
 
         <main className="flex-1 relative bg-black flex items-center justify-center z-10">
-          {currentView === 'login' && <LoginView onLoginSuccess={handleLoginSuccess} />}
+          {/* LOGIN NUR WENN KEIN USER DA IST */}
+          {!user && currentView === 'login' && <LoginView onLoginSuccess={handleLoginSuccess} />}
           
+          {/* ALLE ANDEREN ANSICHTEN NUR FÜR EINGELOGGTE USER */}
           {user && (
             <>
-              {currentView === 'menu' && <MainMenuView user={user} activeIndex={dashboardIndex} onStartGame={setCurrentView} />}
-              {currentView === 'snake' && <SnakeGame onExit={() => setCurrentView('menu')} onGameOver={handleGameOver} />}
-              {currentView === 'leaderboard' && <LeaderboardView user={user} onBack={() => setCurrentView('menu')} />}
+              {currentView === 'menu' && <MainMenuView user={user} onStartGame={navigateFromMenu} />}
+              {currentView === 'snake' && <SnakeGame onExit={() => navigateFromMenu('menu')} onGameOver={handleGameOver} />}
+              {currentView === 'tetris' && <TetrisGame onExit={() => navigateFromMenu('menu')} onGameOver={handleGameOver} />}
+              {currentView === 'leaderboard' && <LeaderboardView user={user} onBack={() => navigateFromMenu('menu')} />}
               {currentView === 'settings' && <SettingsView volume={volume} isMuted={isMuted} />}
             </>
           )}
