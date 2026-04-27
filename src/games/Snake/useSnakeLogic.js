@@ -3,12 +3,14 @@ import { scoreService } from '../../services/scoreService';
 import { audioService } from '../../services/audioService';
 
 export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOver) {
+  // Start-Konfiguration
   const initialSnake = [
     { x: gridSize * 5, y: gridSize * 5 }, 
     { x: gridSize * 4, y: gridSize * 5 }
   ];
   const initialDir = { x: gridSize, y: 0 };
 
+  // States
   const [snake, setSnake] = useState(initialSnake);
   const [food, setFood] = useState({ x: gridSize * 10, y: gridSize * 10 });
   const [direction, setDirection] = useState(initialDir);
@@ -17,28 +19,25 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOv
   const [gameOver, setGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
 
-  const lastProcessedDirection = useRef(initialDir);
   const lastUpdateTime = useRef(0);
   const gameSpeed = 85; 
 
-  // Initialisiere Highscore aus Service
+  // Highscore laden
   useEffect(() => {
     scoreService.getHighscores().then(scores => {
       if (scores.length > 0) setHighscore(scores[0].score);
     });
   }, []);
 
-  // Melde Game Over an die App.jsx
+  // Game Over an App melden
   useEffect(() => {
-    if (gameOver && onGameOver) {
-      onGameOver(score);
-    }
+    if (gameOver && onGameOver) onGameOver(score);
   }, [gameOver, score, onGameOver]);
 
+  // Spiel-Reset
   const resetGame = useCallback(() => {
     setSnake(initialSnake);
     setDirection(initialDir);
-    lastProcessedDirection.current = initialDir;
     setFood({ x: gridSize * 10, y: gridSize * 10 });
     setScore(0);
     setGameOver(false);
@@ -46,23 +45,24 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOv
     audioService.startMusic();
   }, [gridSize]);
 
+  // Futter-Position
   const createFood = useCallback(() => {
     const x = Math.floor(Math.random() * (canvasWidth / gridSize)) * gridSize;
     const y = Math.floor(Math.random() * (canvasHeight / gridSize)) * gridSize;
     return { x, y };
   }, [canvasWidth, canvasHeight, gridSize]);
 
+  // Bewegungs-Logik (Original-Zustand: 180° Wenden erlaubt/tödlich)
   const moveSnake = useCallback(() => {
     if (gameOver || isPaused) return;
 
     setSnake(prevSnake => {
       const head = { x: prevSnake[0].x + direction.x, y: prevSnake[0].y + direction.y };
-      lastProcessedDirection.current = direction;
 
       if (head.x < 0 || head.x >= canvasWidth || head.y < 0 || head.y >= canvasHeight ||
           prevSnake.some(p => p.x === head.x && p.y === head.y)) {
         setGameOver(true);
-        audioService.stopMusic();
+        audioService.stopMusic(); // Musik stoppt bei Game Over
         audioService.playFX('crash');
         return prevSnake;
       }
@@ -79,6 +79,7 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOv
     });
   }, [direction, food, gameOver, isPaused, createFood, canvasWidth, canvasHeight, gridSize]);
 
+  // Game-Loop
   useEffect(() => {
     let requestRef;
     const animate = (time) => {
@@ -95,16 +96,8 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOv
     return () => cancelAnimationFrame(requestRef);
   }, [moveSnake, gameOver, isPaused]);
 
-  const setSafeDirection = useCallback((newDir) => {
-    const isOpposite = 
-      (newDir.x !== 0 && newDir.x === -lastProcessedDirection.current.x) ||
-      (newDir.y !== 0 && newDir.y === -lastProcessedDirection.current.y);
-    
-    if (!isOpposite) setDirection(newDir);
-  }, []);
-
   return { 
     snake, food, score, highscore, gameOver, 
-    setDirection: setSafeDirection, gridSize, isPaused, setIsPaused, resetGame 
+    setDirection, gridSize, isPaused, setIsPaused, resetGame 
   };
 }
