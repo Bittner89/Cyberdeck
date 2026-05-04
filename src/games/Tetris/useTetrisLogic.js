@@ -29,7 +29,13 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
   const [isPaused, setIsPaused] = useState(true);
 
   const lastUpdateTime = useRef(0);
-  const dropInterval = 800;
+  const [dropTime, setDropTime] = useState(800);
+
+  // Erhöht die Schwierigkeit: Alle 500 Punkte wird das Spiel um 100ms schneller (bis min. 100ms)
+  useEffect(() => {
+    const newSpeed = Math.max(100, 800 - Math.floor(score / 500) * 100);
+    setDropTime(newSpeed);
+  }, [score]);
 
   const spawnPiece = useCallback(() => {
     const id = Math.ceil(Math.random() * 7);
@@ -134,6 +140,7 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
   const resetGame = () => {
     setBoard(Array(gridH).fill().map(() => Array(gridW).fill(0)));
     setScore(0);
+    setDropTime(800); // Speed wieder zurücksetzen
     setGameOver(false);
     setIsPaused(false);
     spawnPiece();
@@ -144,7 +151,7 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
     let requestRef;
     const animate = (time) => {
       if (!gameOver && !isPaused) {
-        if (time - lastUpdateTime.current > dropInterval) {
+        if (time - lastUpdateTime.current > dropTime) {
           drop();
           lastUpdateTime.current = time;
         }
@@ -153,7 +160,7 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
     };
     requestRef = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef);
-  }, [drop, gameOver, isPaused]);
+  }, [drop, gameOver, isPaused, dropTime]);
 
   return { board, piece, score, gameOver, isPaused, setIsPaused, move, drop, playerRotate, resetGame, colors, offset, blockSize, gridW, gridH };
 }

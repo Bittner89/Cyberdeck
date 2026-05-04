@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { scoreService } from '../../services/scoreService';
 import { audioService } from '../../services/audioService';
 
-export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOver) {
+export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
   // Start-Konfiguration
   const initialSnake = [
     { x: gridSize * 5, y: gridSize * 5 }, 
@@ -13,7 +13,8 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOv
   // States
   const [snake, setSnake] = useState(initialSnake);
   const [food, setFood] = useState({ x: gridSize * 10, y: gridSize * 10 });
-  const [direction, setDirection] = useState(initialDir);
+  const currentDirection = useRef(initialDir);
+  const directionQueue = useRef([]);
   const [score, setScore] = useState(0);
   const [highscore, setHighscore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -29,15 +30,11 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOv
     });
   }, []);
 
-  // Game Over an App melden
-  useEffect(() => {
-    if (gameOver && onGameOver) onGameOver(score);
-  }, [gameOver, score, onGameOver]);
-
   // Spiel-Reset
   const resetGame = useCallback(() => {
     setSnake(initialSnake);
-    setDirection(initialDir);
+    currentDirection.current = initialDir;
+    directionQueue.current = [];
     setFood({ x: gridSize * 10, y: gridSize * 10 });
     setScore(0);
     setGameOver(false);
@@ -52,12 +49,35 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOv
     return { x, y };
   }, [canvasWidth, canvasHeight, gridSize]);
 
-  // Bewegungs-Logik (Original-Zustand: 180° Wenden erlaubt/tödlich)
+  // Input Buffering: Richtungen sicher einreihen
+  const setDirection = useCallback((newDir) => {
+    const lastDir = directionQueue.current.length > 0 
+      ? directionQueue.current[directionQueue.current.length - 1] 
+      : currentDirection.current;
+
+    // Verhindere 180-Grad-Drehungen (Rückwärtslaufen in sich selbst)
+    if (lastDir.x !== 0 && lastDir.x === -newDir.x) return;
+    if (lastDir.y !== 0 && lastDir.y === -newDir.y) return;
+    
+    // Maximal 3 Eingaben puffern (verhindert Input-Spamming)
+    if (directionQueue.current.length < 3) {
+      if (lastDir.x !== newDir.x || lastDir.y !== newDir.y) {
+        directionQueue.current.push(newDir);
+      }
+    }
+  }, []);
+
+  // Bewegungs-Logik
   const moveSnake = useCallback(() => {
     if (gameOver || isPaused) return;
 
+    if (directionQueue.current.length > 0) {
+      currentDirection.current = directionQueue.current.shift();
+    }
+    const dir = currentDirection.current;
+
     setSnake(prevSnake => {
-      const head = { x: prevSnake[0].x + direction.x, y: prevSnake[0].y + direction.y };
+      const head = { x: prevSnake[0].x + dir.x, y: prevSnake[0].y + dir.y };
 
       if (head.x < 0 || head.x >= canvasWidth || head.y < 0 || head.y >= canvasHeight ||
           prevSnake.some(p => p.x === head.x && p.y === head.y)) {
@@ -77,7 +97,7 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25, onGameOv
       }
       return newSnake;
     });
-  }, [direction, food, gameOver, isPaused, createFood, canvasWidth, canvasHeight, gridSize]);
+  }, [food, gameOver, isPaused, createFood, canvasWidth, canvasHeight, gridSize]);
 
   // Game-Loop
   useEffect(() => {

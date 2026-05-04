@@ -8,89 +8,51 @@ import LeaderboardView from './components/ui/LeaderboardView';
 import SettingsView from './components/ui/SettingsView';
 import { audioService } from './services/audioService';
 import { scoreService } from './services/scoreService';
-import { authService } from './services/authService';
+import { useAppContext } from './context/AppContext';
+import { SIDEBAR_ITEMS } from './menuConfig';
 import './styles/effects.css';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [currentView, setCurrentView] = useState('login');
-  
-  const [volume, setVolume] = useState((audioService.masterVolume || 0.12) * 100);
-  const [isMuted, setIsMuted] = useState(audioService.isMuted);
-  
-  const menuOrder = ['menu', 'snake', 'tetris', 'leaderboard', 'settings'];
-  const [sidebarIndex, setSidebarIndex] = useState(0);
-
-  // User beim Start aus dem Speicher laden
-  useEffect(() => {
-    const savedUser = authService.getCurrentUser();
-    if (savedUser) {
-      setUser(savedUser.name);
-      setCurrentView('menu');
-      setSidebarIndex(0);
-    }
-  }, []);
-
-  const handleLoginSuccess = (userName) => {
-    setUser(userName);
-    setCurrentView('menu');
-    setSidebarIndex(0);
-    audioService.playFX('confirm');
-  };
-
-  const handleLogout = () => {
-    authService.logout();
-    setUser(null);
-    setCurrentView('login');
-  };
+  const { user, currentView, navigate, sidebarIndex, setSidebarIndex } = useAppContext();
 
   // Erkennt automatisch welches Spiel beendet wurde
-  const handleGameOver = async (finalScore) => {
+  const handleGameOver = async (finalScore, gameType) => {
     if (!user) {
       console.warn("ACCESS_DENIED: No agent identity for score sync.");
-      setCurrentView('leaderboard');
+      navigate('leaderboard');
       return;
     }
     
-    // Speichert den Score basierend auf der aktuellen Ansicht
-    const gameType = currentView; // 'snake' oder 'tetris'
+    // Speichert den Score
     await scoreService.saveScore(user, finalScore, gameType);
     
     // Nach Speicherung zum Leaderboard wechseln
-    setCurrentView('leaderboard'); 
-    setSidebarIndex(menuOrder.indexOf('leaderboard'));
-  };
-
-  // Hilfsfunktion für den Wechsel aus dem Hauptmenü (inkl. Sidebar-Sync)
-  const navigateFromMenu = (view) => {
-    setCurrentView(view);
-    const index = menuOrder.indexOf(view);
-    if (index !== -1) setSidebarIndex(index);
-    audioService.playFX('confirm');
+    navigate('leaderboard'); 
   };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Audio initialisieren, falls der User zuerst die Tastatur benutzt statt die Maus
+      audioService.init();
+
       if (currentView === 'snake' || currentView === 'tetris' || currentView === 'login') return;
 
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSidebarIndex((prev) => (prev + 1) % menuOrder.length);
+        setSidebarIndex((prev) => (prev + 1) % SIDEBAR_ITEMS.length);
         audioService.playFX('select');
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSidebarIndex((prev) => (prev - 1 + menuOrder.length) % menuOrder.length);
+        setSidebarIndex((prev) => (prev - 1 + SIDEBAR_ITEMS.length) % SIDEBAR_ITEMS.length);
         audioService.playFX('select');
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        const targetView = menuOrder[sidebarIndex];
-        setCurrentView(targetView);
-        audioService.playFX('confirm');
+        navigate(SIDEBAR_ITEMS[sidebarIndex].id);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentView, sidebarIndex]);
+  }, [currentView, sidebarIndex, navigate, setSidebarIndex]);
 
   return (
     <div onMouseDown={() => audioService.init()} className="w-full h-screen bg-black p-2 md:p-6 overflow-hidden select-none font-vt323">
@@ -98,39 +60,21 @@ function App() {
         <div className="crt-overlay" /><div className="crt-vignette" /><div className="scanline" />
 
         {user && (
-          <Sidebar 
-            currentView={currentView} 
-            setCurrentView={(v) => { setCurrentView(v); setSidebarIndex(menuOrder.indexOf(v)); }} 
-            activeIndex={sidebarIndex}
-            user={user} 
-            onLogout={handleLogout}
-            volume={volume} 
-            onVolumeChange={(e) => {
-              const v = parseInt(e.target.value);
-              setVolume(v);
-              audioService.setMasterVolume(v / 100);
-            }}
-            isMuted={isMuted}
-            onToggleMute={() => {
-              const m = !isMuted;
-              setIsMuted(m);
-              audioService.setMuted(m);
-            }}
-          />
+          <Sidebar />
         )}
 
         <main className="flex-1 relative bg-black flex items-center justify-center z-10">
           {/* LOGIN NUR WENN KEIN USER DA IST */}
-          {!user && currentView === 'login' && <LoginView onLoginSuccess={handleLoginSuccess} />}
+          {!user && currentView === 'login' && <LoginView />}
           
           {/* ALLE ANDEREN ANSICHTEN NUR FÜR EINGELOGGTE USER */}
           {user && (
             <>
-              {currentView === 'menu' && <MainMenuView user={user} onStartGame={navigateFromMenu} />}
-              {currentView === 'snake' && <SnakeGame onExit={() => navigateFromMenu('menu')} onGameOver={handleGameOver} />}
-              {currentView === 'tetris' && <TetrisGame onExit={() => navigateFromMenu('menu')} onGameOver={handleGameOver} />}
-              {currentView === 'leaderboard' && <LeaderboardView user={user} onBack={() => navigateFromMenu('menu')} />}
-              {currentView === 'settings' && <SettingsView volume={volume} isMuted={isMuted} />}
+              {currentView === 'menu' && <MainMenuView />}
+              {currentView === 'snake' && <SnakeGame onGameOver={(score) => handleGameOver(score, 'snake')} />}
+              {currentView === 'tetris' && <TetrisGame onGameOver={(score) => handleGameOver(score, 'tetris')} />}
+              {currentView === 'leaderboard' && <LeaderboardView />}
+              {currentView === 'settings' && <SettingsView />}
             </>
           )}
         </main>

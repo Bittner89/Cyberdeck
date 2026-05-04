@@ -1,6 +1,9 @@
 import React from 'react';
+import { useAppContext } from '../../context/AppContext';
 
-export default function SettingsView({ volume, isMuted, onVolumeChange, onToggleMute }) {
+export default function SettingsView() {
+  const { volume, isMuted, changeVolume, toggleMute } = useAppContext();
+
   return (
     <div className="p-10 font-vt323 text-neon-cyan max-w-2xl w-full animate-fade-in">
       <header className="mb-10 border-b border-neon-cyan/30 pb-4">
@@ -33,7 +36,7 @@ export default function SettingsView({ volume, isMuted, onVolumeChange, onToggle
                 type="range" 
                 min="0" max="100" 
                 value={volume} 
-                onChange={onVolumeChange} 
+              onChange={(e) => changeVolume(parseInt(e.target.value))} 
                 disabled={isMuted}
                 className={`w-full accent-neon-cyan h-2 cursor-pointer transition-opacity ${isMuted ? 'opacity-20' : 'opacity-100'}`}
               />
@@ -45,7 +48,7 @@ export default function SettingsView({ volume, isMuted, onVolumeChange, onToggle
                 <span className="text-[10px] opacity-40 italic">Mutes all system frequencies</span>
               </div>
               <button 
-                onClick={onToggleMute}
+              onClick={toggleMute}
                 className={`px-8 py-2 border-2 font-bold transition-all ${isMuted 
                   ? 'bg-neon-pink text-black border-neon-pink shadow-[0_0_15px_rgba(255,0,255,0.4)]' 
                   : 'border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-black'}`}
