@@ -8,6 +8,7 @@ export default function LeaderboardView() {
   const [activeGame, setActiveGame] = useState('snake');
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userRank, setUserRank] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -15,11 +16,20 @@ export default function LeaderboardView() {
       try {
         let data = [];
         if (activeTab === 'global') {
-          // Holt die Top 10 für das aktuell gewählte Spiel
-          data = await scoreService.getHighscores(activeGame);
+          // Holt ALLE einzigartigen Top-Scores für das Spiel
+          const allUniqueData = await scoreService.getHighscores(activeGame, 0);
+          
+          if (user) {
+            const rankIndex = allUniqueData.findIndex(e => e.username?.toUpperCase() === user.toUpperCase());
+            setUserRank(rankIndex !== -1 ? rankIndex + 1 : null);
+          }
+
+          // Für die globale Liste zeigen wir nur die Top 100 an
+          data = allUniqueData.slice(0, 100);
         } else {
           // Holt nur die Scores des eingeloggten Users für das Spiel
           data = await scoreService.getMyHighscores(user, activeGame);
+          setUserRank(null);
         }
         setScores(data);
       } catch (err) {
@@ -30,6 +40,14 @@ export default function LeaderboardView() {
     };
     fetchData();
   }, [activeTab, user, activeGame]);
+
+  const scrollToMyRank = () => {
+    if (!user) return;
+    const row = document.getElementById(`rank-row-${user.toUpperCase()}`);
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   return (
     <div className="w-full max-w-4xl animate-glitch-entry font-vt323 p-6 bg-black border-2 border-neon-cyan shadow-neon-big relative z-20">
@@ -86,7 +104,15 @@ export default function LeaderboardView() {
           </div>
         ) : scores.length > 0 ? (
           scores.map((entry, i) => (
-            <div key={entry.id} className="flex items-center justify-between p-3 bg-neon-cyan/5 border border-neon-cyan/20 hover:bg-neon-cyan/10 transition-colors group">
+            <div 
+              key={entry.id} 
+              id={`rank-row-${entry.username ? entry.username.toUpperCase() : 'ANONYMOUS'}`}
+              className={`flex items-center justify-between p-3 border transition-colors group ${
+                entry.username?.toUpperCase() === user?.toUpperCase()
+                  ? 'bg-neon-cyan/20 border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]'
+                  : 'bg-neon-cyan/5 border-neon-cyan/20 hover:bg-neon-cyan/10'
+              }`}
+            >
               <div className="flex items-center gap-6">
                 <span className={`text-2xl w-8 ${i < 3 ? 'text-neon-pink' : 'opacity-30'}`}>#{i + 1}</span>
                 <span className="text-xl tracking-widest group-hover:text-neon-cyan transition-colors">
@@ -111,6 +137,26 @@ export default function LeaderboardView() {
           </div>
         )}
       </div>
+
+      {/* EIGENER RANG */}
+      {activeTab === 'global' && user && (
+        <div className="mt-4 pt-4 border-t-2 border-neon-cyan/30 flex justify-between items-center px-4 bg-neon-cyan/10 border-b border-neon-cyan/10 pb-4">
+          <span className="text-xl text-neon-cyan tracking-widest uppercase">AGENT_RANK // {user.toUpperCase()}:</span>
+          <div className="flex items-center gap-6">
+            {userRank && userRank <= scores.length && (
+              <button 
+                onClick={scrollToMyRank}
+                className="text-sm uppercase border border-neon-cyan px-4 py-1 text-neon-cyan hover:bg-neon-cyan hover:text-black transition-all shadow-[0_0_10px_rgba(0,243,255,0.2)]"
+              >
+                [ JUMP_TO_POSITION ]
+              </button>
+            )}
+            <span className="text-4xl text-neon-pink [text-shadow:_0_0_15px_rgba(255,0,255,0.8)] font-bold">
+              {userRank ? `#${userRank}` : 'UNRANKED'}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* DECORATION */}
       <div className="mt-6 flex justify-between text-[10px] text-neon-cyan/30 uppercase tracking-[0.2em]">
