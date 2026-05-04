@@ -1,12 +1,20 @@
 import { supabase } from '../lib/supabase';
 
+export interface ScoreEntry {
+  id: string | number;
+  username: string;
+  score: number;
+  game_name?: string;
+  created_at?: string;
+}
+
 class ScoreService {
   /**
    * Speichert einen Score. 
    * Dank der RLS-Regel "Authenticated_Users_Can_Insert" lässt Supabase 
    * diesen Request nur durch, wenn der User aktuell eingeloggt ist.
    */
-  async saveScore(username, score, gameName = 'snake') {
+  async saveScore(username: string, score: number, gameName: string = 'snake') {
     if (!username) {
       console.error("SCORE_REJECTED: No active agent identity found.");
       return null;
@@ -18,7 +26,7 @@ class ScoreService {
         .insert([
           { 
             username: username.toUpperCase(), 
-            score: parseInt(score), 
+            score: score, 
             game_name: gameName 
           }
         ]);
@@ -29,7 +37,7 @@ class ScoreService {
       }
       return data;
     } catch (err) {
-      console.error("Critical Error saving score:", err.message);
+      console.error("Critical Error saving score:", (err as Error).message);
       return null;
     }
   }
@@ -38,7 +46,7 @@ class ScoreService {
    * Holt das globale Leaderboard.
    * Jeder (auch Gäste im Leaderboard-Tab) darf das lesen.
    */
-  async getHighscores(gameName = 'snake', limit = 10) {
+  async getHighscores(gameName: string = 'snake', limit: number = 10): Promise<ScoreEntry[]> {
     try {
       // Holt mehr Daten aus der DB, um sie lokal nach einzigartigen Usern zu filtern
       const { data, error } = await supabase
@@ -67,7 +75,7 @@ class ScoreService {
       // Entweder Limit anwenden oder die gesamte gefilterte Liste zurückgeben
       return limit > 0 ? uniqueScores.slice(0, limit) : uniqueScores;
     } catch (err) {
-      console.error("Error fetching global scores:", err.message);
+      console.error("Error fetching global scores:", (err as Error).message);
       return [];
     }
   }
@@ -75,7 +83,7 @@ class ScoreService {
   /**
    * Holt nur die Scores des angemeldeten Users.
    */
-  async getMyHighscores(username, gameName = 'snake') {
+  async getMyHighscores(username: string, gameName: string = 'snake'): Promise<ScoreEntry[]> {
     if (!username) return [];
     try {
       const { data, error } = await supabase
@@ -88,7 +96,7 @@ class ScoreService {
       if (error) throw error;
       return data || [];
     } catch (err) {
-      console.error("Error fetching personal scores:", err.message);
+      console.error("Error fetching personal scores:", (err as Error).message);
       return [];
     }
   }

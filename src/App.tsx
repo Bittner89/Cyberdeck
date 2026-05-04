@@ -16,7 +16,7 @@ function App() {
   const { user, currentView, navigate, sidebarIndex, setSidebarIndex } = useAppContext();
 
   // Erkennt automatisch welches Spiel beendet wurde
-  const handleGameOver = async (finalScore, gameType) => {
+  const handleGameOver = async (finalScore: number, gameType: string) => {
     if (!user) {
       console.warn("ACCESS_DENIED: No agent identity for score sync.");
       navigate('leaderboard');
@@ -31,7 +31,7 @@ function App() {
   };
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       // Audio initialisieren, falls der User zuerst die Tastatur benutzt statt die Maus
       audioService.init();
 

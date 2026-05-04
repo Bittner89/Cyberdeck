@@ -1,8 +1,14 @@
 import { supabase } from '../lib/supabase';
 
+export interface UserData {
+  id: string;
+  name: string;
+  email?: string;
+}
+
 class AuthService {
   // LOGIN
-  async login(email, password) {
+  async login(email: string, password: string): Promise<UserData> {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -27,7 +33,7 @@ class AuthService {
     return userData;
   }
 
-  async register(email, password, username) {
+  async register(email: string, password: string, username: string): Promise<UserData> {
   // 1. Auth Signup
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
@@ -58,7 +64,7 @@ class AuthService {
   return this.login(email, password);
 }
 
-  getCurrentUser() {
+  getCurrentUser(): UserData | null {
     const saved = localStorage.getItem('cyberdeck_user');
     return saved ? JSON.parse(saved) : null;
   }

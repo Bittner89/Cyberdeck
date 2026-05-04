@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { authService } from '../../services/authService';
+import type { UserData } from '../../services/authService';
 import { useAppContext } from '../../context/AppContext';
 
 export default function LoginView() {
@@ -13,13 +14,13 @@ export default function LoginView() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg("");
     setSuccessMsg("");
 
     // Validierung
-    const isValidEmail = (mail) => /\S+@\S+\.\S+/.test(mail);
+    const isValidEmail = (mail: string) => /\S+@\S+\.\S+/.test(mail);
     if (!email || !isValidEmail(email)) {
       setErrorMsg("INVALID_DATA_PACKET: Valid Email required.");
       return;
@@ -43,7 +44,7 @@ export default function LoginView() {
     setLoading(true);
 
     try {
-      let userData;
+      let userData: UserData;
       if (mode === "register") {
         // WICHTIG: Email, Passwort UND Username übergeben
         userData = await authService.register(email, password, username);
@@ -56,7 +57,7 @@ export default function LoginView() {
       }
     } catch (err) {
       // Fehlermeldung vom Server anzeigen
-      setErrorMsg(err.message.toUpperCase());
+      setErrorMsg((err as Error).message.toUpperCase());
     } finally {
       setLoading(false);
     }

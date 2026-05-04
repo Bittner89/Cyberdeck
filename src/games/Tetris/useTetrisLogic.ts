@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { audioService } from '../../services/audioService';
 
-export function useTetrisLogic(canvasWidth, canvasHeight) {
+export interface Piece {
+  matrix: number[][];
+  pos: { x: number; y: number };
+  id: number;
+}
+
+export function useTetrisLogic(canvasWidth: number, canvasHeight: number) {
   const gridW = 10;
   const gridH = 20;
   const blockSize = 35; // Skaliert für dein 800x800 Feld
@@ -22,8 +28,8 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
     null, "#00f3ff", "#ff00ff", "#00ff41", "#ffee00", "#ff0055", "#0055ff", "#ffffff"
   ];
 
-  const [board, setBoard] = useState(Array(gridH).fill().map(() => Array(gridW).fill(0)));
-  const [piece, setPiece] = useState(null);
+  const [board, setBoard] = useState<number[][]>(Array(gridH).fill(0).map(() => Array(gridW).fill(0)));
+  const [piece, setPiece] = useState<Piece | null>(null);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
@@ -53,7 +59,7 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
     });
   }, []);
 
-  const collide = (board, piece) => {
+  const collide = (board: number[][], piece: Piece) => {
     const m = piece.matrix;
     const o = piece.pos;
     for (let y = 0; y < m.length; ++y) {
@@ -66,7 +72,7 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
     return false;
   };
 
-  const rotate = (matrix) => {
+  const rotate = (matrix: number[][]) => {
     return matrix[0].map((_, i) => matrix.map(row => row[i]).reverse());
   };
 
@@ -88,9 +94,9 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
     audioService.playFX('select');
   };
 
-  const sweep = (newBoard) => {
+  const sweep = (newBoard: number[][]) => {
     let rowsCleared = 0;
-    const sweptBoard = newBoard.reduce((acc, row) => {
+    const sweptBoard = newBoard.reduce((acc: number[][], row) => {
       if (row.every(value => value !== 0)) {
         rowsCleared++;
         acc.unshift(Array(gridW).fill(0));
@@ -129,7 +135,7 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
     }
   }, [board, piece, gameOver, isPaused, spawnPiece]);
 
-  const move = (dir) => {
+  const move = (dir: number) => {
     if (!piece || isPaused) return;
     const newPiece = { ...piece, pos: { ...piece.pos, x: piece.pos.x + dir } };
     if (!collide(board, newPiece)) {
@@ -138,7 +144,7 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
   };
 
   const resetGame = () => {
-    setBoard(Array(gridH).fill().map(() => Array(gridW).fill(0)));
+    setBoard(Array(gridH).fill(0).map(() => Array(gridW).fill(0)));
     setScore(0);
     setDropTime(800); // Speed wieder zurücksetzen
     setGameOver(false);
@@ -148,8 +154,8 @@ export function useTetrisLogic(canvasWidth, canvasHeight) {
   };
 
   useEffect(() => {
-    let requestRef;
-    const animate = (time) => {
+    let requestRef: number;
+    const animate = (time: number) => {
       if (!gameOver && !isPaused) {
         if (time - lastUpdateTime.current > dropTime) {
           drop();
