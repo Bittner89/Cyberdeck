@@ -1,4 +1,17 @@
 class AudioService {
+  ctx: AudioContext | null;
+  masterGain: GainNode | null;
+  isPlaying: boolean;
+  tempo: number;
+  nextNoteTime: number;
+  beat: number;
+  loopCount: number;
+  lookahead: number;
+  scheduleAhead: number;
+  timer: ReturnType<typeof setTimeout> | null;
+  volume: number;
+  isMuted: boolean;
+
   constructor() {
     const savedVol = localStorage.getItem('nexus_volume');
     const savedMute = localStorage.getItem('nexus_muted');
@@ -23,16 +36,17 @@ class AudioService {
       if (this.ctx.state === 'suspended') this.ctx.resume();
       return;
     }
-    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     this.masterGain = this.ctx.createGain();
     this.masterGain.gain.value = this.isMuted ? 0 : this.volume;
     this.masterGain.connect(this.ctx.destination);
   }
 
   // --- FX SEKTION (Stabil & Sicher) ---
-  playFX(type) {
+  playFX(type: string) {
     if (this.isMuted || !this.ctx) return;
     this.init();
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator();
     const g = this.ctx.createGain();
     osc.connect(g); g.connect(this.masterGain);
@@ -63,6 +77,7 @@ class AudioService {
   startMusic() {
     if (this.isPlaying) return;
     this.init();
+    if (!this.ctx) return;
     this.isPlaying = true;
     this.nextNoteTime = this.ctx.currentTime + 0.1;
     this.beat = 0;
@@ -72,10 +87,11 @@ class AudioService {
 
   stopMusic() {
     this.isPlaying = false;
-    clearTimeout(this.timer);
+    if (this.timer) clearTimeout(this.timer);
   }
 
   scheduler() {
+    if (!this.ctx) return;
     while (this.nextNoteTime < this.ctx.currentTime + this.scheduleAhead) {
       this.playStep(this.nextNoteTime);
       const secondsPerBeat = 60.0 / this.tempo;
@@ -89,7 +105,7 @@ class AudioService {
     if (this.isPlaying) this.timer = setTimeout(() => this.scheduler(), this.lookahead);
   }
 
-  playStep(t) {
+  playStep(t: number) {
     if (this.isMuted) return;
 
     // --- PERKUSSION (Bleibt jetzt durchgehend aktiver) ---
@@ -131,7 +147,8 @@ class AudioService {
   }
 
   // --- SYNTH ENGINES (Konsistent gehalten) ---
-  kick(t) {
+  kick(t: number) {
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator(), g = this.ctx.createGain();
     osc.connect(g); g.connect(this.masterGain);
     osc.frequency.setValueAtTime(120, t);
@@ -141,7 +158,8 @@ class AudioService {
     osc.start(t); osc.stop(t + 0.2);
   }
 
-  snare(t) {
+  snare(t: number) {
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator(), g = this.ctx.createGain();
     osc.type = "triangle"; osc.connect(g); g.connect(this.masterGain);
     osc.frequency.setValueAtTime(180, t);
@@ -150,7 +168,8 @@ class AudioService {
     osc.start(t); osc.stop(t + 0.1);
   }
 
-  hihat(t) {
+  hihat(t: number) {
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator(), g = this.ctx.createGain(), f = this.ctx.createBiquadFilter();
     osc.type = "square"; f.type = "highpass"; f.frequency.value = 9000;
     osc.connect(f); f.connect(g); g.connect(this.masterGain);
@@ -159,7 +178,8 @@ class AudioService {
     osc.start(t); osc.stop(t + 0.02);
   }
 
-  bass(t, f, aggressive = false) {
+  bass(t: number, f: number, aggressive: boolean = false) {
+    if (!this.ctx || !this.masterGain) return;
     const osc1 = this.ctx.createOscillator(), osc2 = this.ctx.createOscillator();
     const g = this.ctx.createGain(), filt = this.ctx.createBiquadFilter();
     osc1.type = "sawtooth"; osc1.frequency.value = f;
@@ -175,7 +195,8 @@ class AudioService {
     osc1.stop(t + 0.25); osc2.stop(t + 0.25);
   }
 
-  arp(t, f, decayMult = 1.0) {
+  arp(t: number, f: number, decayMult: number = 1.0) {
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator(), g = this.ctx.createGain(), filt = this.ctx.createBiquadFilter();
     osc.type = "square";
     osc.frequency.setValueAtTime(f, t);
@@ -188,9 +209,9 @@ class AudioService {
     osc.start(t); osc.stop(t + (0.6 * decayMult));
   }
 
-  midiToFreq(n) { return 440 * Math.pow(2, (n - 69) / 12); }
-  setMasterVolume(val) { this.volume = val; if(this.masterGain) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : val, this.ctx.currentTime, 0.05); }
-  setMuted(m) { this.isMuted = m; if(this.masterGain) this.masterGain.gain.setTargetAtTime(m ? 0 : this.volume, this.ctx.currentTime, 0.05); }
+  midiToFreq(n: number) { return 440 * Math.pow(2, (n - 69) / 12); }
+  setMasterVolume(val: number) { this.volume = val; if(this.masterGain && this.ctx) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : val, this.ctx.currentTime, 0.05); }
+  setMuted(m: boolean) { this.isMuted = m; if(this.masterGain && this.ctx) this.masterGain.gain.setTargetAtTime(m ? 0 : this.volume, this.ctx.currentTime, 0.05); }
 }
 
 export const audioService = new AudioService();

@@ -9,7 +9,7 @@ export default function MainMenuView() {
 
   // Interne Navigation für das Dashboard
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') {
         setActiveIndex(prev => (prev + 1) % DASHBOARD_OPTIONS.length);
         audioService.playFX('select');
@@ -29,7 +29,7 @@ export default function MainMenuView() {
       {/* WELCOME SECTION */}
       <div className="mb-12 border-l-4 border-neon-pink pl-8 py-2">
         <h1 className="text-6xl text-white tracking-tighter italic leading-none">
-          WELCOME, <span className="text-neon-pink [text-shadow:_0_0_15px_rgba(255,0,255,0.8)] uppercase">AGENT_{user || 'UNKNOWN'}</span>
+          WELCOME, <span className="text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] uppercase">AGENT_{user || 'UNKNOWN'}</span>
         </h1>
         <div className="flex items-center gap-2 mt-4">
           <span className="w-2 h-2 bg-neon-cyan animate-pulse"></span>
@@ -58,7 +58,7 @@ export default function MainMenuView() {
             )}
 
             <div className="flex justify-between items-start">
-              <span className={`text-5xl ${activeIndex === i ? 'text-neon-cyan [text-shadow:_0_0_10px_rgba(0,243,255,0.5)]' : 'text-neon-cyan/20'}`}>
+              <span className={`text-5xl ${activeIndex === i ? 'text-neon-cyan [text-shadow:0_0_10px_rgba(0,243,255,0.5)]' : 'text-neon-cyan/20'}`}>
                 {opt.icon}
               </span>
               {activeIndex === i && (

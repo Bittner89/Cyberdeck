@@ -2,7 +2,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { scoreService } from '../../services/scoreService';
 import { audioService } from '../../services/audioService';
 
-export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export function useSnakeLogic(canvasWidth: number, canvasHeight: number, gridSize: number = 25) {
   // Start-Konfiguration
   const initialSnake = [
     { x: gridSize * 5, y: gridSize * 5 }, 
@@ -11,10 +16,10 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
   const initialDir = { x: gridSize, y: 0 };
 
   // States
-  const [snake, setSnake] = useState(initialSnake);
-  const [food, setFood] = useState({ x: gridSize * 10, y: gridSize * 10 });
-  const currentDirection = useRef(initialDir);
-  const directionQueue = useRef([]);
+  const [snake, setSnake] = useState<Position[]>(initialSnake);
+  const [food, setFood] = useState<Position>({ x: gridSize * 10, y: gridSize * 10 });
+  const currentDirection = useRef<Position>(initialDir);
+  const directionQueue = useRef<Position[]>([]);
   const [score, setScore] = useState(0);
   const [highscore, setHighscore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -50,7 +55,7 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
   }, [canvasWidth, canvasHeight, gridSize]);
 
   // Input Buffering: Richtungen sicher einreihen
-  const setDirection = useCallback((newDir) => {
+  const setDirection = useCallback((newDir: Position) => {
     const lastDir = directionQueue.current.length > 0 
       ? directionQueue.current[directionQueue.current.length - 1] 
       : currentDirection.current;
@@ -72,7 +77,7 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
     if (gameOver || isPaused) return;
 
     if (directionQueue.current.length > 0) {
-      currentDirection.current = directionQueue.current.shift();
+      currentDirection.current = directionQueue.current.shift()!;
     }
     const dir = currentDirection.current;
 
@@ -101,8 +106,8 @@ export function useSnakeLogic(canvasWidth, canvasHeight, gridSize = 25) {
 
   // Game-Loop
   useEffect(() => {
-    let requestRef;
-    const animate = (time) => {
+    let requestRef: number;
+    const animate = (time: number) => {
       if (!gameOver && !isPaused) {
         const deltaTime = time - lastUpdateTime.current;
         if (deltaTime > gameSpeed) {

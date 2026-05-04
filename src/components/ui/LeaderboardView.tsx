@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { scoreService } from '../../services/scoreService';
+import { scoreService, ScoreEntry } from '../../services/scoreService';
 import { useAppContext } from '../../context/AppContext';
 
 export default function LeaderboardView() {
   const { user, navigate } = useAppContext();
   const [activeTab, setActiveTab] = useState('global'); 
   const [activeGame, setActiveGame] = useState('snake');
-  const [scores, setScores] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [userRank, setUserRank] = useState(null);
+  const [scores, setScores] = useState<ScoreEntry[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [userRank, setUserRank] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,6 +27,10 @@ export default function LeaderboardView() {
           // Für die globale Liste zeigen wir nur die Top 100 an
           data = allUniqueData.slice(0, 100);
         } else {
+          if (!user) {
+            setScores([]);
+            return;
+          }
           // Holt nur die Scores des eingeloggten Users für das Spiel
           data = await scoreService.getMyHighscores(user, activeGame);
           setUserRank(null);
@@ -97,7 +101,7 @@ export default function LeaderboardView() {
       </div>
 
       {/* LISTE */}
-      <div className="grid grid-cols-1 gap-2 overflow-y-auto max-h-[50vh] pr-4 custom-scrollbar min-h-[300px]">
+      <div className="grid grid-cols-1 gap-2 overflow-y-auto max-h-[50vh] pr-4 custom-scrollbar min-h-75">
         {loading ? (
           <div className="text-center py-20 text-neon-cyan animate-pulse text-2xl uppercase tracking-[0.5em]">
             Accessing_Database...
@@ -140,7 +144,7 @@ export default function LeaderboardView() {
 
       {/* EIGENER RANG */}
       {activeTab === 'global' && user && (
-        <div className="mt-4 pt-4 border-t-2 border-neon-cyan/30 flex justify-between items-center px-4 bg-neon-cyan/10 border-b border-neon-cyan/10 pb-4">
+        <div className="mt-4 pt-4 border-t-2 border-neon-cyan/30 flex justify-between items-center px-4 bg-neon-cyan/10 border-b pb-4">
           <span className="text-xl text-neon-cyan tracking-widest uppercase">AGENT_RANK // {user.toUpperCase()}:</span>
           <div className="flex items-center gap-6">
             {userRank && userRank <= scores.length && (
@@ -151,7 +155,7 @@ export default function LeaderboardView() {
                 [ JUMP_TO_POSITION ]
               </button>
             )}
-            <span className="text-4xl text-neon-pink [text-shadow:_0_0_15px_rgba(255,0,255,0.8)] font-bold">
+            <span className="text-4xl text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] font-bold">
               {userRank ? `#${userRank}` : 'UNRANKED'}
             </span>
           </div>

@@ -1,14 +1,18 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useTetrisLogic } from './useTetrisLogic';
 import { audioService } from '../../services/audioService';
-import { scoreService } from '../../services/scoreService';
+import { scoreService, ScoreEntry } from '../../services/scoreService';
 import { useAppContext } from '../../context/AppContext';
 
-export default function TetrisGame({ onGameOver }) {
+interface TetrisGameProps {
+  onGameOver: (score: number) => void;
+}
+
+export default function TetrisGame({ onGameOver }: TetrisGameProps) {
   const { navigate } = useAppContext();
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasBooted, setHasBooted] = useState(false);
-  const [realHighscores, setRealHighscores] = useState([]);
+  const [realHighscores, setRealHighscores] = useState<ScoreEntry[]>([]);
   const width = 800;
   const height = 800;
 
@@ -30,7 +34,7 @@ export default function TetrisGame({ onGameOver }) {
 
   // Steuerung
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " ", "Escape", "Enter"].includes(e.key)) e.preventDefault();
 
       if (!hasBooted && (e.key === 'Enter' || e.key === ' ')) {
@@ -64,6 +68,7 @@ export default function TetrisGame({ onGameOver }) {
   useEffect(() => {
     if (!hasBooted || !canvasRef.current) return;
     const ctx = canvasRef.current.getContext('2d');
+    if (!ctx) return;
     
     // Background & Grid
     ctx.fillStyle = "#010808";
@@ -76,7 +81,7 @@ export default function TetrisGame({ onGameOver }) {
     board.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value !== 0) {
-          drawBlock(ctx, x, y, colors[value]);
+          drawBlock(ctx, x, y, colors[value] as string);
         }
       });
     });
@@ -86,14 +91,14 @@ export default function TetrisGame({ onGameOver }) {
       piece.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            drawBlock(ctx, x + piece.pos.x, y + piece.pos.y, colors[value]);
+            drawBlock(ctx, x + piece.pos.x, y + piece.pos.y, colors[value] as string);
           }
         });
       });
     }
   }, [board, piece, hasBooted]);
 
-  const drawBlock = (ctx, x, y, color) => {
+  const drawBlock = (ctx: CanvasRenderingContext2D, x: number, y: number, color: string) => {
     ctx.shadowBlur = 15;
     ctx.shadowColor = color;
     ctx.fillStyle = color;
@@ -102,7 +107,7 @@ export default function TetrisGame({ onGameOver }) {
   };
 
   return (
-    <div className="flex flex-row gap-6 p-4 bg-black/60 border-2 border-neon-cyan shadow-neon-big animate-glitch-entry h-[850px]">
+    <div className="flex flex-row gap-6 p-4 bg-black/60 border-2 border-neon-cyan shadow-neon-big animate-glitch-entry h-212.5">
       <div className="relative border-4 border-neon-cyan/50 shadow-neon">
         <canvas ref={canvasRef} width={width} height={height} className="bg-black" />
 
@@ -148,7 +153,7 @@ export default function TetrisGame({ onGameOver }) {
       </div>
 
       {/* HIGHSCORES */}
-      <div className="w-[300px] font-vt323 text-neon-cyan border border-neon-cyan/20 bg-neon-cyan/5 p-4 flex flex-col overflow-hidden">
+      <div className="w-75 font-vt323 text-neon-cyan border border-neon-cyan/20 bg-neon-cyan/5 p-4 flex flex-col overflow-hidden">
         <h3 className="text-2xl border-b border-neon-cyan/30 pb-2 mb-4 italic uppercase tracking-tighter shadow-neon">Top_10_Agents</h3>
         <div className="flex-1 space-y-2">
           {realHighscores.map((entry, i) => (
@@ -163,7 +168,7 @@ export default function TetrisGame({ onGameOver }) {
         {/* CURRENT SCORE DISPLAY */}
         <div className="mt-4 pt-4 border-t border-neon-cyan/30 text-right">
           <p className="text-sm opacity-50 uppercase tracking-widest mb-1">Current_Score</p>
-          <p className="text-6xl text-neon-pink [text-shadow:_0_0_15px_rgba(255,0,255,0.8)] tabular-nums leading-none">{score}</p>
+          <p className="text-6xl text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] tabular-nums leading-none">{score}</p>
         </div>
       </div>
     </div>
