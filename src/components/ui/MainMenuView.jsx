@@ -1,31 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { audioService } from '../../services/audioService';
+import { useAppContext } from '../../context/AppContext';
+import { DASHBOARD_OPTIONS } from '../../menuConfig';
 
-export default function MainMenuView({ user, onStartGame }) {
+export default function MainMenuView() {
+  const { user, navigate } = useAppContext();
   const [activeIndex, setActiveIndex] = useState(0);
-  const options = [
-    { id: 'snake', label: 'NEURAL_SNAKE', desc: 'Hack into the grid. Collect data fragments.' },
-    { id: 'tetris', label: 'BLOCK_ENCRYPT', desc: 'Defragment neural layers. Secure the sector.' },
-    { id: 'leaderboard', label: 'GLOBAL_ARCHIVE', desc: 'See who currently dominates the net.' }
-  ];
 
   // Interne Navigation für das Dashboard
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowRight') {
-        setActiveIndex(prev => (prev + 1) % options.length);
+        setActiveIndex(prev => (prev + 1) % DASHBOARD_OPTIONS.length);
         audioService.playFX('select');
       } else if (e.key === 'ArrowLeft') {
-        setActiveIndex(prev => (prev - 1 + options.length) % options.length);
+        setActiveIndex(prev => (prev - 1 + DASHBOARD_OPTIONS.length) % DASHBOARD_OPTIONS.length);
         audioService.playFX('select');
       } else if (e.key === 'Enter') {
-        onStartGame(options[activeIndex].id);
-        audioService.playFX('confirm');
+        navigate(DASHBOARD_OPTIONS[activeIndex].id);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeIndex]);
+  }, [activeIndex, navigate]);
 
   return (
     <div className="w-full max-w-4xl animate-glitch-entry p-4 font-vt323">
@@ -44,10 +41,10 @@ export default function MainMenuView({ user, onStartGame }) {
 
       {/* DASHBOARD OPTIONS - 3 Columns Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {options.map((opt, i) => (
+        {DASHBOARD_OPTIONS.map((opt, i) => (
           <div 
             key={opt.id}
-            onClick={() => onStartGame(opt.id)}
+            onClick={() => navigate(opt.id)}
             onMouseEnter={() => setActiveIndex(i)}
             className={`cursor-pointer p-6 border-2 transition-all duration-300 group relative flex flex-col justify-between h-64 ${
               activeIndex === i 
@@ -62,7 +59,7 @@ export default function MainMenuView({ user, onStartGame }) {
 
             <div className="flex justify-between items-start">
               <span className={`text-5xl ${activeIndex === i ? 'text-neon-cyan [text-shadow:_0_0_10px_rgba(0,243,255,0.5)]' : 'text-neon-cyan/20'}`}>
-                {i === 0 ? '▰' : i === 1 ? 'max' : '▱'}
+                {opt.icon}
               </span>
               {activeIndex === i && (
                 <span className="text-neon-cyan animate-ping text-xs">●</span>

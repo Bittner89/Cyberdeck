@@ -1,22 +1,12 @@
 import React from 'react';
+import { useAppContext } from '../../context/AppContext';
+import { SIDEBAR_ITEMS } from '../../menuConfig';
 
-export default function Sidebar({ 
-  currentView, 
-  setCurrentView, 
-  activeIndex, 
-  user, 
-  onLogout, 
-  volume, 
-  onVolumeChange, 
-  isMuted, 
-  onToggleMute 
-}) {
-  const menuItems = [
-    { id: 'menu', label: 'DASHBOARD', icon: '◰' },
-    { id: 'snake', label: 'NEURAL_SNAKE', icon: 'S' },
-    { id: 'leaderboard', label: 'HIGHSCORES', icon: '🏆' },
-    { id: 'settings', label: 'SYSTEM_CFG', icon: 'C' },
-  ];
+export default function Sidebar() {
+  const { 
+    user, logout, navigate, sidebarIndex,
+    volume, changeVolume, isMuted, toggleMute 
+  } = useAppContext();
 
   return (
     <aside className="w-full md:w-64 bg-black/80 border-r border-neon-cyan/30 flex flex-col z-20 font-vt323">
@@ -37,7 +27,7 @@ export default function Sidebar({
         {/* LOGOUT BUTTON - Zeigt sich nur wenn user eingeloggt ist */}
         {user && (
           <button 
-            onClick={onLogout}
+            onClick={logout}
             className="mt-3 w-full border border-neon-pink/50 py-1 text-[10px] text-neon-pink hover:bg-neon-pink hover:text-black transition-all uppercase tracking-widest flex items-center justify-center gap-2"
           >
             <span>[→]</span> DISCONNECT_SESSION
@@ -46,7 +36,7 @@ export default function Sidebar({
         
         {!user && (
           <button 
-            onClick={() => setCurrentView('login')}
+            onClick={() => navigate('login')}
             className="mt-3 w-full border border-neon-cyan/50 py-1 text-[10px] text-neon-cyan hover:bg-neon-cyan hover:text-black transition-all uppercase tracking-widest"
           >
             ESTABLISH_LINK
@@ -56,16 +46,16 @@ export default function Sidebar({
 
       {/* NAVIGATION */}
       <nav className="flex-1 py-4">
-        {menuItems.map((item, index) => (
+        {SIDEBAR_ITEMS.map((item, index) => (
           <button
             key={item.id}
-            onClick={() => setCurrentView(item.id)}
+            onClick={() => navigate(item.id)}
             className={`w-full flex items-center gap-4 px-4 py-3 transition-all duration-200 group
-              ${activeIndex === index ? 'bg-neon-cyan/10 text-white' : 'text-neon-cyan/40 hover:text-neon-cyan/70'}`}
+              ${sidebarIndex === index ? 'bg-neon-cyan/10 text-white' : 'text-neon-cyan/40 hover:text-neon-cyan/70'}`}
           >
             <span className="w-4 flex justify-center">{item.icon}</span>
             <span className="tracking-[0.2em] text-sm uppercase">{item.label}</span>
-            {activeIndex === index && (
+            {sidebarIndex === index && (
               <span className="ml-auto text-neon-cyan animate-pulse">▶</span>
             )}
           </button>
@@ -80,7 +70,7 @@ export default function Sidebar({
         </div>
         <div className="flex items-center gap-3">
           <button 
-            onClick={onToggleMute} 
+            onClick={toggleMute} 
             className={`transition-colors ${isMuted ? 'text-neon-pink' : 'text-neon-cyan hover:text-white'}`}
           >
             {isMuted ? '🔇' : '🔊'}
@@ -90,7 +80,7 @@ export default function Sidebar({
             min="0" 
             max="100" 
             value={isNaN(volume) ? 0 : volume} 
-            onChange={onVolumeChange}
+            onChange={(e) => changeVolume(parseInt(e.target.value))}
             className="flex-1 accent-neon-cyan bg-neon-cyan/20 h-1 appearance-none cursor-pointer"
           />
         </div>

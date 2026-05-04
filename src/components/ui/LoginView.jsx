@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { authService } from '../../services/authService';
+import { useAppContext } from '../../context/AppContext';
 
-export default function LoginView({ onLoginSuccess }) {
+export default function LoginView() {
+  const { login } = useAppContext();
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -46,11 +48,11 @@ export default function LoginView({ onLoginSuccess }) {
         // WICHTIG: Email, Passwort UND Username übergeben
         userData = await authService.register(email, password, username);
         setSuccessMsg("IDENTITY_CREATED: Welcome Agent " + username.toUpperCase());
-        setTimeout(() => onLoginSuccess(userData.name), 1500);
+        setTimeout(() => login(userData.name), 1500);
       } else if (mode === "login") {
         // WICHTIG: Hier fehlte das password!
         userData = await authService.login(email, password);
-        onLoginSuccess(userData.name);
+        login(userData.name);
       }
     } catch (err) {
       // Fehlermeldung vom Server anzeigen

@@ -2,8 +2,10 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useSnakeLogic } from './useSnakeLogic';
 import { audioService } from '../../services/audioService';
 import { scoreService } from '../../services/scoreService';
+import { useAppContext } from '../../context/AppContext';
 
-export default function SnakeGame({ onExit, onGameOver }) {
+export default function SnakeGame({ onGameOver }) {
+  const { navigate } = useAppContext();
   const canvasRef = useRef(null);
   const [hasBooted, setHasBooted] = useState(false);
   const [realHighscores, setRealHighscores] = useState([]);
@@ -14,7 +16,7 @@ export default function SnakeGame({ onExit, onGameOver }) {
   const { 
     snake, food, score, highscore, gameOver, 
     setDirection, gridSize, isPaused, setIsPaused, resetGame 
-  } = useSnakeLogic(width, height, grid, onGameOver);
+  } = useSnakeLogic(width, height, grid);
 
   // Highscores laden
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function SnakeGame({ onExit, onGameOver }) {
   // Musik stoppen, wenn das Spiel manuell verlassen wird
   const handleAbort = () => {
     audioService.stopMusic();
-    onExit();
+    navigate('menu');
   };
 
   // Canvas Drawing
@@ -145,8 +147,8 @@ export default function SnakeGame({ onExit, onGameOver }) {
               <h2 className="text-7xl text-neon-pink mb-4 italic uppercase font-black">Link_Severed</h2>
               <p className="text-3xl text-white mb-8 uppercase tracking-widest">Final_Score: {score}</p>
               <div className="flex gap-4 justify-center">
-                <button onClick={resetGame} className="border-2 border-neon-cyan p-3 text-neon-cyan hover:bg-neon-cyan hover:text-black text-xl transition-all uppercase">Reboot</button>
-                <button onClick={handleAbort} className="border-2 border-neon-pink p-3 text-neon-pink hover:bg-neon-pink hover:text-black text-xl transition-all uppercase">Exit</button>
+                <button onClick={resetGame} className="border-2 border-neon-cyan p-3 text-neon-cyan hover:bg-neon-cyan hover:text-black text-xl transition-all uppercase">REBOOT</button>
+                <button onClick={() => onGameOver(score)} className="border-2 border-neon-pink p-3 text-neon-pink hover:bg-neon-pink hover:text-black text-xl transition-all uppercase">UPLOAD_SCORE</button>
               </div>
             </div>
           </div>
@@ -164,6 +166,12 @@ export default function SnakeGame({ onExit, onGameOver }) {
               <span className="text-white shrink-0 tabular-nums">{entry.score}</span>
             </div>
           ))}
+        </div>
+
+        {/* CURRENT SCORE DISPLAY */}
+        <div className="mt-4 pt-4 border-t border-neon-cyan/30 text-right">
+          <p className="text-sm opacity-50 uppercase tracking-widest mb-1">Current_Score</p>
+          <p className="text-6xl text-neon-pink [text-shadow:_0_0_15px_rgba(255,0,255,0.8)] tabular-nums leading-none">{score}</p>
         </div>
       </div>
     </div>

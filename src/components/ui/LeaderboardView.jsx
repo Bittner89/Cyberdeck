@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { scoreService } from '../../services/scoreService';
+import { useAppContext } from '../../context/AppContext';
 
-export default function LeaderboardView({ onBack, user }) {
+export default function LeaderboardView() {
+  const { user, navigate } = useAppContext();
   const [activeTab, setActiveTab] = useState('global'); 
+  const [activeGame, setActiveGame] = useState('snake');
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,11 +15,11 @@ export default function LeaderboardView({ onBack, user }) {
       try {
         let data = [];
         if (activeTab === 'global') {
-          // Holt die Top 10 aller Spieler (Standard: Snake)
-          data = await scoreService.getHighscores('snake');
+          // Holt die Top 10 für das aktuell gewählte Spiel
+          data = await scoreService.getHighscores(activeGame);
         } else {
-          // Holt nur die Scores des aktuell eingeloggten Users
-          data = await scoreService.getMyHighscores(user, 'snake');
+          // Holt nur die Scores des eingeloggten Users für das Spiel
+          data = await scoreService.getMyHighscores(user, activeGame);
         }
         setScores(data);
       } catch (err) {
@@ -26,7 +29,7 @@ export default function LeaderboardView({ onBack, user }) {
       }
     };
     fetchData();
-  }, [activeTab, user]);
+  }, [activeTab, user, activeGame]);
 
   return (
     <div className="w-full max-w-4xl animate-glitch-entry font-vt323 p-6 bg-black border-2 border-neon-cyan shadow-neon-big relative z-20">
@@ -36,10 +39,26 @@ export default function LeaderboardView({ onBack, user }) {
           {activeTab === 'global' ? '::Global_Leaderboard::' : '::Personal_Archive::'}
         </h2>
         <button 
-          onClick={onBack} 
+          onClick={() => navigate('menu')} 
           className="text-neon-pink hover:bg-neon-pink hover:text-black border border-neon-pink px-6 py-1 transition-all"
         >
           BACK_TO_MENU
+        </button>
+      </div>
+
+      {/* GAME SELECTOR */}
+      <div className="flex gap-4 mb-4">
+        <button 
+          onClick={() => setActiveGame('snake')}
+          className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'snake' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
+        >
+          GAME: NEURAL_SNAKE
+        </button>
+        <button 
+          onClick={() => setActiveGame('tetris')}
+          className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'tetris' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
+        >
+          GAME: BLOCK_ENCRYPT
         </button>
       </div>
 
