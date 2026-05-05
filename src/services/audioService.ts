@@ -11,6 +11,7 @@ class AudioService {
   timer: ReturnType<typeof setTimeout> | null;
   volume: number;
   isMuted: boolean;
+  currentGame: string;
 
   constructor() {
     const savedVol = localStorage.getItem('nexus_volume');
@@ -26,6 +27,7 @@ class AudioService {
     this.lookahead = 25;
     this.scheduleAhead = 0.1;
     this.timer = null;
+    this.currentGame = 'default';
 
     this.volume = savedVol !== null ? parseFloat(savedVol) : 0.2;
     this.isMuted = savedMute === 'true';
@@ -74,14 +76,26 @@ class AudioService {
     }
   }
 
-  startMusic() {
-    if (this.isPlaying) return;
+  startMusic(game: string = 'default') {
+    if (this.isPlaying && this.currentGame === game) return;
+    this.stopMusic();
     this.init();
     if (!this.ctx) return;
+    this.currentGame = game;
     this.isPlaying = true;
     this.nextNoteTime = this.ctx.currentTime + 0.1;
     this.beat = 0;
     this.loopCount = 0;
+
+    // Dynamisches Tempo je nach Spiel
+    switch(game) {
+      case 'snake': this.tempo = 130; break;
+      case 'tetris': this.tempo = 140; break;
+      case 'spaceinvaders': this.tempo = 100; break;
+      case 'breakout': this.tempo = 145; break;
+      default: this.tempo = 118; break;
+    }
+
     this.scheduler();
   }
 
@@ -97,9 +111,9 @@ class AudioService {
       const secondsPerBeat = 60.0 / this.tempo;
       this.nextNoteTime += 0.25 * secondsPerBeat;
       this.beat++;
-      if (this.beat >= 32) {
+      if (this.beat >= 64) {
         this.beat = 0;
-        this.loopCount = (this.loopCount + 1) % 3; // A-B-C Cycle
+        this.loopCount = (this.loopCount + 1) % 4; // A-B-C-D Cycle
       }
     }
     if (this.isPlaying) this.timer = setTimeout(() => this.scheduler(), this.lookahead);
@@ -108,40 +122,102 @@ class AudioService {
   playStep(t: number) {
     if (this.isMuted) return;
 
-    // --- PERKUSSION (Bleibt jetzt durchgehend aktiver) ---
-    if (this.beat % 4 === 0) this.kick(t);
-    // In C lassen wir nur die Snare weg, behalten aber den Drive
-    if (this.loopCount !== 2 && this.beat % 8 === 4) this.snare(t);
-    if (this.beat % 2 !== 0) this.hihat(t);
+    const game = this.currentGame;
 
-    if (this.loopCount === 0) {
-      // --- DAS NEUE THEMA A (Ehemals D - Der Drive) ---
-      const bassA = [36, 36, 38, 38, 39, 39, 41, 41];
-      this.bass(t, this.midiToFreq(bassA[Math.floor(this.beat / 4) % 8]), false);
-      
-      if (this.beat % 2 === 0) {
-        // Schnelle 16tel Arps für technoiden Vibe
-        this.arp(t, this.midiToFreq(60 + (this.beat % 4)), 0.2);
+    if (game === 'snake') {
+      if (this.beat % 4 === 0) this.kick(t);
+      if (this.beat % 2 !== 0) this.hihat(t);
+      if (this.beat % 8 === 4) this.snare(t);
+
+      const part = this.loopCount % 2; // A-B pattern
+      if (part === 0) {
+        const bassLine = [36, 36, 48, 36, 36, 36, 46, 45];
+        this.bass(t, this.midiToFreq(bassLine[this.beat % 8]), true);
+      } else {
+        const bassLine = [36, 36, 36, 36, 43, 43, 41, 41];
+        this.bass(t, this.midiToFreq(bassLine[this.beat % 8]), true);
+      }
+
+      // Add a lead melody in the second half of the full loop
+      if (this.loopCount >= 2) {
+        const lead = [72, 75, 72, 77, 72, 75, 72, 80];
+        if (this.beat % 4 === 0) {
+          this.arp(t, this.midiToFreq(lead[Math.floor(this.beat / 4) % 8]), 0.8);
+        }
       }
     } 
-    else if (this.loopCount === 1) {
-      // --- THEMA B (DEIN FAVORIT) ---
-      const bassB = [32, 32, 34, 34, 29, 29, 31, 31];
-      this.bass(t, this.midiToFreq(bassB[Math.floor(this.beat / 4) % 8]), true); 
+    else if (game === 'tetris') {
+      if (this.beat % 4 === 0) this.kick(t);
+      if (this.beat % 4 === 2) this.snare(t);
 
-      const leadB = [72, 75, 79, 84, 82, 79, 75, 72];
-      if (this.beat % 4 === 0) {
-        this.arp(t, this.midiToFreq(leadB[(this.beat / 4) % 8]), 1.2); 
+      if (this.loopCount < 3) {
+        const tetrisLead = [76, 71, 72, 74, 72, 71, 69, 69, 72, 76, 74, 72, 71, 71, 72, 74];
+        this.arp(t, this.midiToFreq(tetrisLead[this.beat % 16]), 0.6);
+        
+        const bassNote = (this.beat % 16 < 8) ? 45 : 40;
+        if (this.beat % 2 === 0) this.bass(t, this.midiToFreq(bassNote), false);
+      } else {
+        // Bridge part
+        const bridgeLead = [72, 72, 74, 74, 76, 76, 77, 77];
+        if (this.beat % 4 === 0) this.arp(t, this.midiToFreq(bridgeLead[Math.floor(this.beat / 4) % 8]), 1.0);
+        const bridgeBass = [41, 41, 43, 43, 45, 45, 46, 46];
+        if (this.beat % 2 === 0) this.bass(t, this.midiToFreq(bridgeBass[Math.floor(this.beat / 2) % 8]), false);
+      }
+    }
+    else if (game === 'spaceinvaders') {
+      if (this.beat % 4 === 0) this.kick(t);
+      
+      const bassNotes = [[41, 40, 39, 38], [41, 41, 39, 39], [41, 34, 39, 33], [38, 38, 38, 38]];
+      const currentBassLine = bassNotes[this.loopCount];
+      if (this.beat % 4 === 0) this.bass(t, this.midiToFreq(currentBassLine[Math.floor(this.beat / 4) % 4]), true);
+
+      if (this.loopCount === 2 && this.beat % 16 === 0) this.arp(t, this.midiToFreq(84), 1.5);
+      if (this.loopCount === 3 && this.beat % 8 === 0) this.arp(t, this.midiToFreq(84 + Math.floor((this.beat % 16) / 8)), 1.5);
+    }
+    else if (game === 'breakout') {
+      if (this.beat % 4 === 0) this.kick(t);
+      if (this.beat % 2 !== 0) this.hihat(t);
+      if (this.beat % 4 === 2) this.snare(t);
+
+      const part = this.loopCount % 2;
+      if (part === 0) {
+        const arpLine = [60, 72, 60, 75, 60, 72, 60, 79];
+        this.arp(t, this.midiToFreq(arpLine[this.beat % 8]), 0.3);
+        if (this.beat % 4 === 0) this.bass(t, this.midiToFreq(36), false);
+      } else {
+        const arpLine = [64, 76, 64, 79, 64, 76, 64, 81];
+        this.arp(t, this.midiToFreq(arpLine[this.beat % 8]), 0.3);
+        if (this.beat % 4 === 0) this.bass(t, this.midiToFreq(40), false);
+      }
+      
+      // Add a chord stab in the second half
+      if (this.loopCount >= 2 && this.beat % 16 === 0) {
+        this.arp(t, this.midiToFreq(72), 2.0);
+        this.arp(t, this.midiToFreq(76), 2.0);
+        this.arp(t, this.midiToFreq(79), 2.0);
       }
     }
     else {
-      // --- DAS NEUE THEMA C (Transit ohne Tempo-Verlust) ---
-      // Bass bleibt aktiv auf einer Note, um Druck zu halten
-      this.bass(t, this.midiToFreq(36), false);
-      
-      if (this.beat % 4 === 2) {
-        // Akzentuierte Off-Beat Noten
-        this.arp(t, this.midiToFreq(72), 0.4);
+      // DEFAULT / MENU (Dein bisheriger Track)
+      if (this.beat % 4 === 0) this.kick(t);
+      if (this.loopCount !== 3 && this.beat % 8 === 4) this.snare(t);
+      if (this.beat % 2 !== 0) this.hihat(t);
+
+      if (this.loopCount === 0) {
+        const bassA = [36, 36, 38, 38, 39, 39, 41, 41];
+        this.bass(t, this.midiToFreq(bassA[Math.floor(this.beat / 2) % 8]), false);
+        if (this.beat % 2 === 0) this.arp(t, this.midiToFreq(60 + (this.beat % 4)), 0.2);
+      } else if (this.loopCount === 1) {
+        const bassB = [32, 32, 34, 34, 29, 29, 31, 31];
+        this.bass(t, this.midiToFreq(bassB[Math.floor(this.beat / 2) % 8]), true); 
+        const leadB = [72, 75, 79, 84, 82, 79, 75, 72];
+        if (this.beat % 4 === 0) this.arp(t, this.midiToFreq(leadB[(this.beat / 4) % 8]), 1.2); 
+      } else if (this.loopCount === 2) {
+        this.bass(t, this.midiToFreq(36), false);
+        if (this.beat % 4 === 2) this.arp(t, this.midiToFreq(72), 0.4);
+      } else {
+        if (this.beat % 16 === 0) this.bass(t, this.midiToFreq(29), true);
+        if (this.beat % 8 === 0) this.arp(t, this.midiToFreq(84), 2.0);
       }
     }
   }

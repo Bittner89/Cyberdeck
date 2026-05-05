@@ -69,7 +69,7 @@ export default function LeaderboardView() {
       </div>
 
       {/* GAME SELECTOR */}
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-wrap gap-4 mb-4">
         <button 
           onClick={() => setActiveGame('snake')}
           className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'snake' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
@@ -81,6 +81,18 @@ export default function LeaderboardView() {
           className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'tetris' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
         >
           GAME: BLOCK_ENCRYPT
+        </button>
+      <button 
+        onClick={() => setActiveGame('spaceinvaders')}
+        className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'spaceinvaders' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
+      >
+        GAME: ALIEN_THREAT
+      </button>
+        <button 
+          onClick={() => setActiveGame('breakout')}
+          className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'breakout' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
+        >
+          GAME: FIREWALL_BREACH
         </button>
       </div>
 

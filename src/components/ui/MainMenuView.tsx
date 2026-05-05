@@ -39,8 +39,8 @@ export default function MainMenuView() {
         </div>
       </div>
 
-      {/* DASHBOARD OPTIONS - 3 Columns Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* DASHBOARD OPTIONS - Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {DASHBOARD_OPTIONS.map((opt, i) => (
           <div 
             key={opt.id}

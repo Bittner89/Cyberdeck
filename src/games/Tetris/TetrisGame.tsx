@@ -17,7 +17,7 @@ export default function TetrisGame({ onGameOver }: TetrisGameProps) {
   const height = 800;
 
   const { 
-    board, piece, score, gameOver, isPaused, setIsPaused, 
+    board, piece, nextPiece, score, gameOver, isPaused, setIsPaused, 
     move, drop, playerRotate, resetGame, colors, offset, blockSize, gridW, gridH 
   } = useTetrisLogic(width, height);
 
@@ -77,6 +77,19 @@ export default function TetrisGame({ onGameOver }: TetrisGameProps) {
     ctx.strokeStyle = "rgba(0, 243, 255, 0.1)";
     ctx.strokeRect(offset.x, offset.y, gridW * blockSize, gridH * blockSize);
 
+    // Inneres Raster (Grid)
+    ctx.strokeStyle = "rgba(0, 243, 255, 0.05)";
+    ctx.beginPath();
+    for (let x = 1; x < gridW; x++) {
+      ctx.moveTo(offset.x + x * blockSize, offset.y);
+      ctx.lineTo(offset.x + x * blockSize, offset.y + gridH * blockSize);
+    }
+    for (let y = 1; y < gridH; y++) {
+      ctx.moveTo(offset.x, offset.y + y * blockSize);
+      ctx.lineTo(offset.x + gridW * blockSize, offset.y + y * blockSize);
+    }
+    ctx.stroke();
+
     // Board zeichnen
     board.forEach((row, y) => {
       row.forEach((value, x) => {
@@ -96,7 +109,29 @@ export default function TetrisGame({ onGameOver }: TetrisGameProps) {
         });
       });
     }
-  }, [board, piece, hasBooted]);
+
+    // Next Piece Preview
+    if (nextPiece) {
+      const previewOffsetX = offset.x + gridW * blockSize + 40;
+      const previewOffsetY = offset.y + 40;
+      
+      ctx.fillStyle = "rgba(0, 243, 255, 0.5)";
+      ctx.font = "24px VT323";
+      ctx.fillText("NEXT_BLOCK", previewOffsetX, previewOffsetY - 15);
+
+      nextPiece.matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value !== 0) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = colors[value] as string;
+            ctx.fillStyle = colors[value] as string;
+            ctx.fillRect(previewOffsetX + x * blockSize + 1, previewOffsetY + y * blockSize + 1, blockSize - 2, blockSize - 2);
+          }
+        });
+      });
+      ctx.shadowBlur = 0;
+    }
+  }, [board, piece, nextPiece, hasBooted]);
 
   const drawBlock = (ctx: CanvasRenderingContext2D, x: number, y: number, color: string) => {
     ctx.shadowBlur = 15;
