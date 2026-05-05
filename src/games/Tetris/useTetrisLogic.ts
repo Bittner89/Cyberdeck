@@ -30,12 +30,14 @@ export function useTetrisLogic(canvasWidth: number, canvasHeight: number) {
 
   const [board, setBoard] = useState<number[][]>(Array(gridH).fill(0).map(() => Array(gridW).fill(0)));
   const [piece, setPiece] = useState<Piece | null>(null);
+  const [nextPiece, setNextPiece] = useState<Piece | null>(null);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
 
   const lastUpdateTime = useRef(0);
   const [dropTime, setDropTime] = useState(800);
+  const nextPieceRef = useRef<Piece | null>(null);
 
   // Erhöht die Schwierigkeit: Alle 500 Punkte wird das Spiel um 100ms schneller (bis min. 100ms)
   useEffect(() => {
@@ -44,13 +46,23 @@ export function useTetrisLogic(canvasWidth: number, canvasHeight: number) {
   }, [score]);
 
   const spawnPiece = useCallback(() => {
-    const id = Math.ceil(Math.random() * 7);
-    const newPiece = { matrix: shapes[id], pos: { x: 3, y: 0 }, id };
+    const generatePiece = (): Piece => {
+      const id = Math.ceil(Math.random() * 7);
+      return { matrix: shapes[id], pos: { x: 3, y: 0 }, id };
+    };
+
+    let current = nextPieceRef.current;
+    if (!current) {
+      current = generatePiece();
+    }
+    const next = generatePiece();
+    nextPieceRef.current = next;
+    setNextPiece(next);
     
-    setPiece(newPiece);
+    setPiece(current);
     // Kollisions-Check sofort nach Spawn
     setBoard(prevBoard => {
-      if (collide(prevBoard, newPiece)) {
+      if (collide(prevBoard, current!)) {
         setGameOver(true);
         audioService.playFX('crash');
         audioService.stopMusic();
@@ -149,8 +161,9 @@ export function useTetrisLogic(canvasWidth: number, canvasHeight: number) {
     setDropTime(800); // Speed wieder zurücksetzen
     setGameOver(false);
     setIsPaused(false);
+    nextPieceRef.current = null; // Reset für neues Spiel
     spawnPiece();
-    audioService.startMusic();
+    audioService.startMusic('tetris');
   };
 
   useEffect(() => {
@@ -168,5 +181,22 @@ export function useTetrisLogic(canvasWidth: number, canvasHeight: number) {
     return () => cancelAnimationFrame(requestRef);
   }, [drop, gameOver, isPaused, dropTime]);
 
-  return { board, piece, score, gameOver, isPaused, setIsPaused, move, drop, playerRotate, resetGame, colors, offset, blockSize, gridW, gridH };
+  return { 
+    board, 
+    piece, 
+    nextPiece,
+    score, 
+    gameOver, 
+    isPaused, 
+    setIsPaused, 
+    move, 
+    drop, 
+    playerRotate, 
+    resetGame, 
+    colors, 
+    offset, 
+    blockSize, 
+    gridW, 
+    gridH 
+  };
 }

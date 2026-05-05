@@ -53,18 +53,60 @@ export default function SnakeGame({ onGameOver }: SnakeGameProps) {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
     }
 
-    // Essen
-    ctx.shadowBlur = 15;
+    // Essen (Data Fragment - Diamond)
+    const cx = food.x + gridSize / 2;
+    const cy = food.y + gridSize / 2;
+    const r = gridSize / 2 - 2;
+    
+    ctx.shadowBlur = 20;
     ctx.shadowColor = '#ff00ff';
     ctx.fillStyle = '#ff00ff';
-    ctx.fillRect(food.x + 2, food.y + 2, gridSize - 4, gridSize - 4);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - r);
+    ctx.lineTo(cx + r, cy);
+    ctx.lineTo(cx, cy + r);
+    ctx.lineTo(cx - r, cy);
+    ctx.closePath();
+    ctx.fill();
 
-    // Schlange
+    // Essen Kern
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r / 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Schlange (Data Stream)
     snake.forEach((part, i) => {
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = i === 0 ? 15 : 10;
       ctx.shadowColor = '#00ffff';
-      ctx.fillStyle = i === 0 ? '#fff' : '#00ffff';
-      ctx.fillRect(part.x + 1, part.y + 1, gridSize - 2, gridSize - 2);
+      
+      if (i === 0) {
+        // Kopf: Leuchtender Block mit Kontrast-Kern
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(part.x + 1, part.y + 1, gridSize - 2, gridSize - 2);
+        
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(part.x + 6, part.y + 6, gridSize - 12, gridSize - 12);
+        
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(part.x + 8, part.y + 8, gridSize - 16, gridSize - 16);
+      } else {
+        // Körper: Wird zum Ende hin kleiner und transparenter
+        const scale = 1 - (i / snake.length) * 0.4; 
+        const size = gridSize * scale;
+        const offset = (gridSize - size) / 2;
+        
+        ctx.globalAlpha = Math.max(0.2, 1 - (i / snake.length));
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(part.x + offset, part.y + offset, size, size);
+        
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(part.x + offset + 2, part.y + offset + 2, size - 4, size - 4);
+        
+        ctx.globalAlpha = 1.0;
+      }
     });
 
     ctx.shadowBlur = 0;
@@ -79,7 +121,7 @@ export default function SnakeGame({ onGameOver }: SnakeGameProps) {
 
       if (!hasBooted && (e.key === 'Enter' || e.key === ' ')) {
         audioService.init(); 
-        audioService.startMusic(); 
+        audioService.startMusic('snake'); 
         setHasBooted(true);
         setIsPaused(false);
         return;

@@ -44,7 +44,7 @@ export function useSnakeLogic(canvasWidth: number, canvasHeight: number, gridSiz
     setScore(0);
     setGameOver(false);
     setIsPaused(false);
-    audioService.startMusic();
+    audioService.startMusic('snake');
   }, [gridSize]);
 
   // Futter-Position

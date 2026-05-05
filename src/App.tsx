@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import SnakeGame from './games/Snake/SnakeGame';
 import TetrisGame from './games/Tetris/TetrisGame'; 
+import SpaceInvadersGame from './games/SpaceInvaders/SpaceInvadersGame';
+import BreakoutGame from './games/Breakout/BreakoutGame';
 import MainMenuView from './components/ui/MainMenuView';
 import LoginView from './components/ui/LoginView';
 import LeaderboardView from './components/ui/LeaderboardView';
@@ -35,7 +37,7 @@ function App() {
       // Audio initialisieren, falls der User zuerst die Tastatur benutzt statt die Maus
       audioService.init();
 
-      if (currentView === 'snake' || currentView === 'tetris' || currentView === 'login') return;
+      if (currentView === 'snake' || currentView === 'tetris' || currentView === 'spaceinvaders' || currentView === 'breakout' || currentView === 'login') return;
 
       if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -71,8 +73,10 @@ function App() {
           {user && (
             <>
               {currentView === 'menu' && <MainMenuView />}
-              {currentView === 'snake' && <SnakeGame onGameOver={(score) => handleGameOver(score, 'snake')} />}
-              {currentView === 'tetris' && <TetrisGame onGameOver={(score) => handleGameOver(score, 'tetris')} />}
+              {currentView === 'snake' && <SnakeGame onGameOver={(score: number) => handleGameOver(score, 'snake')} />}
+              {currentView === 'tetris' && <TetrisGame onGameOver={(score: number) => handleGameOver(score, 'tetris')} />}
+              {currentView === 'spaceinvaders' && <SpaceInvadersGame onGameOver={(score: number) => handleGameOver(score, 'spaceinvaders')} />}
+              {currentView === 'breakout' && <BreakoutGame onGameOver={(score: number) => handleGameOver(score, 'breakout')} />}
               {currentView === 'leaderboard' && <LeaderboardView />}
               {currentView === 'settings' && <SettingsView />}
             </>
