@@ -54,7 +54,7 @@ export default function LeaderboardView() {
   };
 
   return (
-    <div className="w-full max-w-4xl animate-glitch-entry font-vt323 p-8 bg-black/90 border-2 border-neon-cyan shadow-neon-big relative z-20 chamfer">
+    <div className="w-full lg:w-[1164px] lg:max-w-full max-w-4xl lg:h-[850px] max-h-full flex flex-col animate-glitch-entry font-vt323 p-8 bg-black/90 border-2 border-neon-cyan shadow-neon-big relative z-20 chamfer">
       <div className="absolute top-2 left-2 text-[10px] text-neon-cyan/50">+</div>
       <div className="absolute bottom-2 right-2 text-[10px] text-neon-cyan/50">+</div>
 
@@ -116,7 +116,7 @@ export default function LeaderboardView() {
       </div>
 
       {/* LISTE */}
-      <div className="grid grid-cols-1 gap-2 overflow-y-auto max-h-[50vh] pr-4 custom-scrollbar min-h-75">
+      <div className="grid grid-cols-1 gap-2 overflow-y-auto flex-1 min-h-0 pr-4 custom-scrollbar">
         {loading ? (
           <div className="text-center py-20 text-neon-cyan animate-pulse text-2xl uppercase tracking-[0.5em]">
             Accessing_Database...
@@ -159,7 +159,7 @@ export default function LeaderboardView() {
 
       {/* EIGENER RANG */}
       {activeTab === 'global' && user && (
-        <div className="mt-4 pt-4 border-t-2 border-neon-cyan/30 flex justify-between items-center px-4 bg-neon-cyan/10 border-b pb-4">
+        <div className="mt-4 pt-4 border-t-2 border-neon-cyan/30 flex justify-between items-center px-4 bg-neon-cyan/10 border-b pb-4 shrink-0">
           <span className="text-xl text-neon-cyan tracking-widest uppercase">AGENT_RANK // {user.toUpperCase()}:</span>
           <div className="flex items-center gap-6">
             {userRank && userRank <= scores.length && (
@@ -178,7 +178,7 @@ export default function LeaderboardView() {
       )}
 
       {/* DECORATION */}
-      <div className="mt-6 flex justify-between text-[10px] text-neon-cyan/30 uppercase tracking-[0.2em]">
+      <div className="mt-6 flex justify-between text-[10px] text-neon-cyan/30 uppercase tracking-[0.2em] shrink-0">
         <span>Encryption: AES-256</span>
         <span>Source: Neural_Link_Cloud</span>
       </div>

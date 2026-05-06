@@ -33,7 +33,7 @@ export default function MainMenuView() {
   }, [activeIndex]);
 
   return (
-    <div className="w-full max-w-4xl animate-glitch-entry p-4 md:p-8 font-vt323 bg-black/80 border border-neon-cyan/20 chamfer relative shadow-neon">
+    <div className="w-full lg:w-[1164px] lg:max-w-full max-w-4xl lg:h-[850px] max-h-full flex flex-col animate-glitch-entry p-4 md:p-8 font-vt323 bg-black/90 border-2 border-neon-cyan chamfer relative shadow-neon-big">
       {/* Decorative HUD Elements */}
       <div className="absolute top-2 left-2 text-[10px] text-neon-cyan/50">+</div>
       <div className="absolute top-2 right-2 text-[10px] text-neon-cyan/50">+</div>
@@ -60,7 +60,7 @@ export default function MainMenuView() {
       </div>
 
       {/* DASHBOARD OPTIONS - Vertical List */}
-      <div className="flex flex-col gap-4 overflow-y-auto max-h-[50vh] pr-2 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex flex-col gap-4 overflow-y-auto flex-1 min-h-0 pr-2 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {DASHBOARD_OPTIONS.map((opt, i) => (
           <div 
             key={opt.id}
@@ -128,7 +128,7 @@ export default function MainMenuView() {
       </div>
 
       {/* SYSTEM FOOTER */}
-      <div className="mt-6 md:mt-12 pt-4 border-t border-neon-cyan/10 flex justify-between items-center text-[8px] md:text-[10px] text-neon-cyan/20 uppercase tracking-[0.2em] md:tracking-[0.5em]">
+      <div className="mt-6 md:mt-12 pt-4 border-t border-neon-cyan/10 flex justify-between items-center text-[8px] md:text-[10px] text-neon-cyan/20 uppercase tracking-[0.2em] md:tracking-[0.5em] shrink-0">
         <span>Sector_01 // Neural_Link_Active</span>
         <span className="animate-pulse italic">Access_Level: Administrator</span>
       </div>

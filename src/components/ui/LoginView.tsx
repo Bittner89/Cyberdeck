@@ -64,11 +64,12 @@ export default function LoginView() {
   };
 
   return (
-    <div className="w-full max-w-md p-8 bg-black/90 border-2 border-neon-cyan shadow-neon-big animate-glitch-entry font-vt323 relative z-20 chamfer">
+    <div className="w-full lg:w-[1164px] lg:max-w-full max-w-md lg:h-[850px] max-h-full p-8 bg-black/90 border-2 border-neon-cyan shadow-neon-big animate-glitch-entry font-vt323 relative z-20 chamfer flex flex-col items-center justify-center overflow-y-auto custom-scrollbar">
       {/* HUD Elements */}
       <div className="absolute top-2 left-2 text-neon-cyan/50 text-[10px]">TL-01</div>
       <div className="absolute bottom-2 right-2 text-neon-cyan/50 text-[10px]">BR-09</div>
 
+      <div className="w-full max-w-md">
       <div className="text-center mb-10">
         <h2 className="text-4xl text-neon-cyan mb-2 tracking-[0.3em] shadow-neon uppercase glitch-hover">
           {mode === "login" ? "ESTABLISH_LINK" : "GENERATE_ID"}
@@ -154,6 +155,7 @@ export default function LoginView() {
         >
           {mode === "login" ? "> Create New Agent Identity" : "> Return to Login Portal"}
         </button>
+      </div>
       </div>
     </div>
   );

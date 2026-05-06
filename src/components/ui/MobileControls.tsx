@@ -2,6 +2,10 @@ import React, { useCallback } from 'react';
 
 export default function MobileControls() {
   const trigger = useCallback((key: string, type: 'keydown' | 'keyup') => {
+    // Haptisches Feedback (Vibration) auf unterstützten Geräten
+    if (type === 'keydown' && typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(15); // 15 Millisekunden: Fühlt sich an wie ein echter, mechanischer Klick
+    }
     window.dispatchEvent(new KeyboardEvent(type, { key, bubbles: true }));
   }, []);
 
