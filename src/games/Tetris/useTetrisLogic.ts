@@ -160,10 +160,9 @@ export function useTetrisLogic(canvasWidth: number, canvasHeight: number) {
     setScore(0);
     setDropTime(800); // Speed wieder zurücksetzen
     setGameOver(false);
-    setIsPaused(false);
+    setIsPaused(true);
     nextPieceRef.current = null; // Reset für neues Spiel
     spawnPiece();
-    audioService.startMusic('tetris');
   };
 
   useEffect(() => {

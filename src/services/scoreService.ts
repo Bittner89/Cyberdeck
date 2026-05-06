@@ -91,7 +91,8 @@ class ScoreService {
         .select('*')
         .eq('game_name', gameName)
         .eq('username', username.toUpperCase())
-        .order('score', { ascending: false });
+        .order('score', { ascending: false })
+        .limit(20);
 
       if (error) throw error;
       return data || [];

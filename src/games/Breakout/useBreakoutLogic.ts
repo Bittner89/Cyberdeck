@@ -143,7 +143,7 @@ export function useBreakoutLogic(canvasWidth: number, canvasHeight: number) {
   const resetGame = useCallback(() => {
     setScore(0);
     setGameOver(false);
-    setIsPaused(false);
+    setIsPaused(true);
     setLevelUI(1);
     state.current.level = 1;
     state.current.keys = { ArrowLeft: false, ArrowRight: false, " ": false }; // Verhindert Sofortstart durch Leertaste
@@ -156,7 +156,6 @@ export function useBreakoutLogic(canvasWidth: number, canvasHeight: number) {
     state.current.laserEndTime = 0;
     state.current.expandEndTime = 0;
     generateBlocks(0);
-    audioService.startMusic('breakout');
   }, [canvasWidth, generateBlocks, paddleY]);
 
   const update = useCallback(() => {

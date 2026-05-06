@@ -80,7 +80,7 @@ export function useSpaceInvadersLogic(canvasWidth: number, canvasHeight: number)
   const resetGame = useCallback(() => {
     setScore(0);
     setGameOver(false);
-    setIsPaused(false);
+    setIsPaused(true);
     state.current = {
       playerX: canvasWidth / 2 - playerWidth / 2,
       enemies: [],
@@ -96,7 +96,6 @@ export function useSpaceInvadersLogic(canvasWidth: number, canvasHeight: number)
       ufo: { active: false, x: 0, y: 20, width: 45, height: 18, dir: 1 }
     };
     spawnEnemies();
-    audioService.startMusic('spaceinvaders');
   }, [canvasWidth, spawnEnemies]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
