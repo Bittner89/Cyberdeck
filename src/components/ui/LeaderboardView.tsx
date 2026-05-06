@@ -54,15 +54,18 @@ export default function LeaderboardView() {
   };
 
   return (
-    <div className="w-full max-w-4xl animate-glitch-entry font-vt323 p-6 bg-black border-2 border-neon-cyan shadow-neon-big relative z-20">
+    <div className="w-full max-w-4xl animate-glitch-entry font-vt323 p-8 bg-black/90 border-2 border-neon-cyan shadow-neon-big relative z-20 chamfer">
+      <div className="absolute top-2 left-2 text-[10px] text-neon-cyan/50">+</div>
+      <div className="absolute bottom-2 right-2 text-[10px] text-neon-cyan/50">+</div>
+
       {/* HEADER */}
       <div className="flex justify-between items-center mb-8 border-b-2 border-neon-cyan pb-4">
-        <h2 className="text-4xl text-neon-cyan tracking-tighter uppercase italic">
+        <h2 className="text-4xl text-neon-cyan tracking-tighter uppercase italic glitch-hover">
           {activeTab === 'global' ? '::Global_Leaderboard::' : '::Personal_Archive::'}
         </h2>
         <button 
           onClick={() => navigate('menu')} 
-          className="text-neon-pink hover:bg-neon-pink hover:text-black border border-neon-pink px-6 py-1 transition-all"
+          className="text-neon-pink hover:bg-neon-pink hover:text-black border border-neon-pink px-6 py-1 transition-all chamfer-btn glitch-hover"
         >
           BACK_TO_MENU
         </button>
@@ -72,25 +75,25 @@ export default function LeaderboardView() {
       <div className="flex flex-wrap gap-4 mb-4">
         <button 
           onClick={() => setActiveGame('snake')}
-          className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'snake' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
+          className={`flex-1 py-1 border transition-all duration-300 chamfer-btn glitch-hover ${activeGame === 'snake' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan bg-black/50'}`}
         >
           GAME: NEURAL_SNAKE
         </button>
         <button 
           onClick={() => setActiveGame('tetris')}
-          className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'tetris' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
+          className={`flex-1 py-1 border transition-all duration-300 chamfer-btn glitch-hover ${activeGame === 'tetris' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan bg-black/50'}`}
         >
           GAME: BLOCK_ENCRYPT
         </button>
       <button 
         onClick={() => setActiveGame('spaceinvaders')}
-        className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'spaceinvaders' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
+        className={`flex-1 py-1 border transition-all duration-300 chamfer-btn glitch-hover ${activeGame === 'spaceinvaders' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan bg-black/50'}`}
       >
         GAME: ALIEN_THREAT
       </button>
         <button 
           onClick={() => setActiveGame('breakout')}
-          className={`flex-1 py-1 border transition-all duration-300 ${activeGame === 'breakout' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan'}`}
+          className={`flex-1 py-1 border transition-all duration-300 chamfer-btn glitch-hover ${activeGame === 'breakout' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan bg-black/50'}`}
         >
           GAME: FIREWALL_BREACH
         </button>
@@ -100,13 +103,13 @@ export default function LeaderboardView() {
       <div className="flex gap-4 mb-6">
         <button 
           onClick={() => setActiveTab('global')}
-          className={`flex-1 py-2 border-2 transition-all duration-300 ${activeTab === 'global' ? 'bg-neon-cyan text-black border-neon-cyan shadow-neon' : 'text-neon-cyan border-neon-cyan/30 hover:border-neon-cyan'}`}
+          className={`flex-1 py-2 border-2 transition-all duration-300 chamfer-btn glitch-hover ${activeTab === 'global' ? 'bg-neon-cyan text-black border-neon-cyan shadow-neon' : 'bg-black/50 text-neon-cyan border-neon-cyan/30 hover:border-neon-cyan'}`}
         >
           GLOBAL_NET_SCORES
         </button>
         <button 
           onClick={() => setActiveTab('personal')}
-          className={`flex-1 py-2 border-2 transition-all duration-300 ${activeTab === 'personal' ? 'bg-neon-pink text-black border-neon-pink shadow-neon-pink' : 'text-neon-pink border-neon-pink/30 hover:border-neon-pink'}`}
+          className={`flex-1 py-2 border-2 transition-all duration-300 chamfer-btn glitch-hover ${activeTab === 'personal' ? 'bg-neon-pink text-black border-neon-pink shadow-neon-pink' : 'bg-black/50 text-neon-pink border-neon-pink/30 hover:border-neon-pink'}`}
         >
           PERSONAL_RECORDS ({user || 'GHOST'})
         </button>

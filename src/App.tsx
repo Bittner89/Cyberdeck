@@ -16,6 +16,29 @@ import './styles/effects.css';
 
 function App() {
   const { user, currentView, navigate, sidebarIndex, setSidebarIndex } = useAppContext();
+  const [isBooting, setIsBooting] = useState(true);
+  const [bootLines, setBootLines] = useState<string[]>([]);
+
+  // FAKE BOOT SEQUENCE
+  useEffect(() => {
+    const lines = [
+      "SYS_INIT: MEMORY CHECK OK (640K RAM)",
+      "LOADING KERNEL MODULES...",
+      "ESTABLISHING NEURAL LINK...",
+      "DECRYPTING ICE PROTOCOLS...",
+      "WARNING: UNAUTHORIZED ACCESS DETECTED",
+      "BYPASSING SECURITY...",
+      "ACCESS GRANTED. WELCOME TO NEXUS."
+    ];
+    let delay = 0;
+    lines.forEach((line, index) => {
+      delay += Math.random() * 300 + 150;
+      setTimeout(() => {
+        setBootLines(prev => [...prev, line]);
+        if (index === lines.length - 1) setTimeout(() => setIsBooting(false), 1000);
+      }, delay);
+    });
+  }, []);
 
   // Erkennt automatisch welches Spiel beendet wurde
   const handleGameOver = async (finalScore: number, gameType: string) => {
@@ -61,24 +84,35 @@ function App() {
       <div className="w-full h-full crt-frame flex flex-col md:flex-row relative">
         <div className="crt-overlay" /><div className="crt-vignette" /><div className="scanline" />
 
-        {user && (
+        {user && !isBooting && (
           <Sidebar />
         )}
 
-        <main className="flex-1 relative bg-black flex items-center justify-center z-10">
-          {/* LOGIN NUR WENN KEIN USER DA IST */}
-          {!user && currentView === 'login' && <LoginView />}
-          
-          {/* ALLE ANDEREN ANSICHTEN NUR FÜR EINGELOGGTE USER */}
-          {user && (
+        <main className="flex-1 relative bg-cyber-grid flex items-center justify-center z-10">
+          {isBooting ? (
+            <div className="w-full h-full p-10 font-vt323 text-neon-cyan flex flex-col justify-end pb-20">
+              {bootLines.map((line, i) => (
+                <div key={i} className="text-2xl md:text-3xl animate-fade-in opacity-80">{`> ${line}`}</div>
+              ))}
+              <div className="text-2xl md:text-3xl animate-pulse mt-2">{`> _`}</div>
+            </div>
+          ) : (
             <>
-              {currentView === 'menu' && <MainMenuView />}
-              {currentView === 'snake' && <SnakeGame onGameOver={(score: number) => handleGameOver(score, 'snake')} />}
-              {currentView === 'tetris' && <TetrisGame onGameOver={(score: number) => handleGameOver(score, 'tetris')} />}
-              {currentView === 'spaceinvaders' && <SpaceInvadersGame onGameOver={(score: number) => handleGameOver(score, 'spaceinvaders')} />}
-              {currentView === 'breakout' && <BreakoutGame onGameOver={(score: number) => handleGameOver(score, 'breakout')} />}
-              {currentView === 'leaderboard' && <LeaderboardView />}
-              {currentView === 'settings' && <SettingsView />}
+              {/* LOGIN NUR WENN KEIN USER DA IST */}
+              {!user && currentView === 'login' && <LoginView />}
+              
+              {/* ALLE ANDEREN ANSICHTEN NUR FÜR EINGELOGGTE USER */}
+              {user && (
+                <>
+                  {currentView === 'menu' && <MainMenuView />}
+                  {currentView === 'snake' && <SnakeGame onGameOver={(score: number) => handleGameOver(score, 'snake')} />}
+                  {currentView === 'tetris' && <TetrisGame onGameOver={(score: number) => handleGameOver(score, 'tetris')} />}
+                  {currentView === 'spaceinvaders' && <SpaceInvadersGame onGameOver={(score: number) => handleGameOver(score, 'spaceinvaders')} />}
+                  {currentView === 'breakout' && <BreakoutGame onGameOver={(score: number) => handleGameOver(score, 'breakout')} />}
+                  {currentView === 'leaderboard' && <LeaderboardView />}
+                  {currentView === 'settings' && <SettingsView />}
+                </>
+              )}
             </>
           )}
         </main>

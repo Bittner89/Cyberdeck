@@ -64,9 +64,13 @@ export default function LoginView() {
   };
 
   return (
-    <div className="w-full max-w-md p-8 bg-black border-2 border-neon-cyan shadow-neon-big animate-glitch-entry font-vt323 relative z-20">
+    <div className="w-full max-w-md p-8 bg-black/90 border-2 border-neon-cyan shadow-neon-big animate-glitch-entry font-vt323 relative z-20 chamfer">
+      {/* HUD Elements */}
+      <div className="absolute top-2 left-2 text-neon-cyan/50 text-[10px]">TL-01</div>
+      <div className="absolute bottom-2 right-2 text-neon-cyan/50 text-[10px]">BR-09</div>
+
       <div className="text-center mb-10">
-        <h2 className="text-4xl text-neon-cyan mb-2 tracking-[0.3em] shadow-neon uppercase">
+        <h2 className="text-4xl text-neon-cyan mb-2 tracking-[0.3em] shadow-neon uppercase glitch-hover">
           {mode === "login" ? "ESTABLISH_LINK" : "GENERATE_ID"}
         </h2>
         <div className="h-0.5 w-full bg-neon-cyan/20"></div>
@@ -136,8 +140,8 @@ export default function LoginView() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full py-4 mt-4 border-2 transition-all duration-300 text-xl tracking-[0.4em] uppercase 
-            ${loading ? 'border-gray-600 text-gray-600' : 'border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-black shadow-neon-hover'}`}
+          className={`w-full py-4 mt-4 border-2 transition-all duration-300 text-xl tracking-[0.4em] uppercase chamfer-btn glitch-hover
+            ${loading ? 'border-gray-600 text-gray-600' : 'bg-neon-cyan/10 border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-black shadow-neon-hover'}`}
         >
           {loading ? "PROCESSING..." : mode === "login" ? "INITIALIZE" : "FINALIZE"}
         </button>
