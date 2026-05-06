@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { audioService } from '../../services/audioService';
 import { useAppContext } from '../../context/AppContext';
 import { DASHBOARD_OPTIONS } from '../../menuConfig';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 export default function MainMenuView() {
   const { user, navigate } = useAppContext();
   const [activeIndex, setActiveIndex] = useState(0);
   const activeItemRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // Interne Navigation für das Dashboard
   useEffect(() => {
@@ -32,6 +34,40 @@ export default function MainMenuView() {
     }
   }, [activeIndex]);
 
+  // --- MOBILE APP VERSION ---
+  if (isMobile) {
+    return (
+      <div className="w-full h-full p-4 overflow-y-auto custom-scrollbar z-20 flex flex-col bg-transparent">
+        {/* Native App Header */}
+        <div className="mb-6 mt-4">
+          <p className="text-neon-pink text-xs tracking-widest uppercase mb-1">Welcome_Agent</p>
+          <h1 className="text-4xl text-white tracking-tighter uppercase italic">{user || 'UNKNOWN'}</h1>
+          <div className="h-0.5 w-12 bg-neon-cyan mt-3"></div>
+        </div>
+
+        {/* App Cards List */}
+        <div className="flex flex-col gap-4 pb-10">
+          {DASHBOARD_OPTIONS.map((opt) => (
+            <div 
+              key={opt.id}
+              onClick={() => navigate(opt.id)} 
+              className="flex items-center bg-[#050a0a]/90 border border-neon-cyan/20 p-4 rounded-2xl active:scale-[0.98] transition-transform active:bg-neon-cyan/10 shadow-[0_4px_15px_rgba(0,0,0,0.5)]"
+            >
+              <div className="w-16 h-16 bg-black rounded-xl border border-neon-cyan/30 flex items-center justify-center text-4xl text-neon-cyan shadow-[inset_0_0_10px_rgba(0,243,255,0.2)] shrink-0">
+                {opt.icon}
+              </div>
+              <div className="ml-4 flex-1">
+                <h3 className="text-2xl text-white tracking-widest uppercase mb-1">{opt.label}</h3>
+                <p className="text-xs text-neon-cyan/50 leading-tight">{opt.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // --- DESKTOP VERSION ---
   return (
     <div className="w-full lg:w-[1164px] lg:max-w-full max-w-4xl lg:h-[850px] max-h-full flex flex-col animate-glitch-entry p-4 md:p-8 font-vt323 bg-black/90 border-2 border-neon-cyan chamfer relative shadow-neon-big">
       {/* Decorative HUD Elements */}

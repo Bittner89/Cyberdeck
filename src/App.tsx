@@ -15,6 +15,7 @@ import { SIDEBAR_ITEMS } from './menuConfig';
 import './styles/effects.css';
 import { useIsMobile } from './hooks/useIsMobile';
 import MobileControls from './components/ui/MobileControls';
+import BottomNav from './components/layout/BottomNav';
 
 function App() {
   const { user, currentView, navigate, sidebarIndex, setSidebarIndex } = useAppContext();
@@ -85,15 +86,15 @@ function App() {
   }, [currentView, sidebarIndex, navigate, setSidebarIndex]);
 
   return (
-    <div onMouseDown={() => audioService.init()} className={`w-full bg-black overflow-hidden select-none font-vt323 ${isMobile ? 'h-dvh flex flex-col' : 'p-6 h-screen'}`}>
-      <div className={`w-full flex-1 min-h-0 flex relative ${isMobile ? 'flex-col overflow-hidden' : 'crt-frame flex-row'}`}>
+    <div onMouseDown={() => audioService.init()} className={`w-full bg-black overflow-hidden select-none font-vt323 ${isMobile ? 'h-[100dvh] flex flex-col' : 'p-6 h-screen'}`}>
+      <div className={`w-full flex-1 min-h-0 flex relative ${isMobile ? 'flex-col overflow-hidden bg-black' : 'crt-frame flex-row'}`}>
         <div className="crt-overlay" /><div className="crt-vignette" /><div className="scanline" />
 
         {user && !isBooting && (!isMobile || !isGameActive) && (
           <Sidebar />
         )}
 
-        <main className="flex-1 relative bg-cyber-grid flex flex-col items-center justify-center z-10 overflow-hidden">
+        <main className={`flex-1 relative bg-cyber-grid flex flex-col items-center justify-center z-10 overflow-hidden ${isMobile && !isGameActive ? 'pb-4' : ''}`}>
           {isBooting ? (
             <div className="w-full h-full p-10 font-vt323 text-neon-cyan flex flex-col justify-end pb-20">
               {bootLines.map((line, i) => (
@@ -126,6 +127,11 @@ function App() {
       {/* MOBILE CONTROLS (Wird nur auf dem Smartphone im Spiel angezeigt) */}
       {user && !isBooting && isMobile && isGameActive && (
         <MobileControls />
+      )}
+
+      {/* MOBILE BOTTOM NAV (Sichtbar in Menüs) */}
+      {user && !isBooting && isMobile && !isGameActive && (
+        <BottomNav />
       )}
     </div>
   );

@@ -14,57 +14,7 @@ export default function Sidebar() {
 
   // --- MOBILE VERSION ---
   if (isMobile) {
-    return (
-      <aside className="w-full bg-black border-b border-neon-cyan/30 flex flex-col z-50 font-vt323 shrink-0 relative">
-        <div className="flex justify-between items-center p-3 bg-neon-cyan/5">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 border border-neon-cyan flex items-center justify-center text-neon-cyan shadow-neon text-lg">
-              {user ? user[0].toUpperCase() : '?'}
-            </div>
-            <div className="text-neon-cyan tracking-widest uppercase">
-              {user || 'GUEST'}
-            </div>
-          </div>
-          <button 
-            onClick={() => setIsOpen(!isOpen)} 
-            className="border border-neon-cyan text-neon-cyan px-3 py-1 chamfer-btn text-sm active:bg-neon-cyan active:text-black transition-colors"
-          >
-            {isOpen ? 'CLOSE_MENU' : 'SYS_MENU'}
-          </button>
-        </div>
-        
-        {isOpen && (
-          <div className="flex flex-col bg-black/95 absolute top-full left-0 w-full border-b border-neon-cyan/30 shadow-neon-big overflow-y-auto max-h-[60vh] pb-4">
-            <nav className="flex-1 py-2">
-              {SIDEBAR_ITEMS.map((item, index) => (
-                <button
-                  key={item.id}
-                  onClick={() => { navigate(item.id); setIsOpen(false); }}
-                  className={`w-full flex items-center gap-4 px-4 py-3 transition-all duration-200
-                    ${sidebarIndex === index ? 'bg-neon-cyan/10 text-white' : 'text-neon-cyan/40 active:text-neon-cyan/70'}`}
-                >
-                  <span className="w-4 flex justify-center">{item.icon}</span>
-                  <span className="tracking-[0.2em] text-sm uppercase">{item.label}</span>
-                </button>
-              ))}
-            </nav>
-            
-            {/* MOBILE LOGOUT */}
-            <div className="px-4 mt-2">
-              {user ? (
-                <button onClick={() => { logout(); setIsOpen(false); }} className="w-full border border-neon-pink/50 py-2 text-xs text-neon-pink active:bg-neon-pink active:text-black transition-all uppercase tracking-widest">
-                  DISCONNECT_SESSION
-                </button>
-              ) : (
-                <button onClick={() => { navigate('login'); setIsOpen(false); }} className="w-full border border-neon-cyan/50 py-2 text-xs text-neon-cyan active:bg-neon-cyan active:text-black transition-all uppercase tracking-widest">
-                  ESTABLISH_LINK
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </aside>
-    );
+    return null; // Wird komplett durch die BottomNav in der App.tsx ersetzt!
   }
 
   // --- DESKTOP VERSION ---
