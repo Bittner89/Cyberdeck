@@ -26,6 +26,16 @@ export default function TetrisGame({ onGameOver }: TetrisGameProps) {
     scoreService.getHighscores('tetris').then(setRealHighscores);
   }, [gameOver]);
 
+  // Musik pausieren und fortsetzen
+  useEffect(() => {
+    if (!hasBooted || gameOver) return;
+    if (isPaused) {
+      audioService.pauseMusic();
+    } else {
+      audioService.resumeMusic();
+    }
+  }, [isPaused, hasBooted, gameOver]);
+
   // Musik stoppen, wenn das Spiel manuell verlassen wird
   const handleAbort = () => {
     audioService.stopMusic();

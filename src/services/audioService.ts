@@ -1,3 +1,8 @@
+import snakeMusicFile from '../components/MP3/Neon Coil.mp3';
+import tetrisMusicFile from '../components/MP3/Neon Block Drop.mp3';
+import breakoutMusicFile from '../components/MP3/neon paddle run.mp3';
+import spaceInvadersMusicFile from '../components/MP3/Neon Invader Grid.mp3';
+
 class AudioService {
   ctx: AudioContext | null;
   masterGain: GainNode | null;
@@ -12,6 +17,10 @@ class AudioService {
   volume: number;
   isMuted: boolean;
   currentGame: string;
+  bgMusicElement: HTMLAudioElement | null;
+  tetrisBgMusicElement: HTMLAudioElement | null;
+  breakoutBgMusicElement: HTMLAudioElement | null;
+  spaceInvadersBgMusicElement: HTMLAudioElement | null;
 
   constructor() {
     const savedVol = localStorage.getItem('nexus_volume');
@@ -28,9 +37,29 @@ class AudioService {
     this.scheduleAhead = 0.1;
     this.timer = null;
     this.currentGame = 'default';
+    this.bgMusicElement = new Audio(snakeMusicFile);
+    this.bgMusicElement.loop = true;
+
+    this.tetrisBgMusicElement = new Audio(tetrisMusicFile);
+    this.tetrisBgMusicElement.loop = true;
+
+    this.breakoutBgMusicElement = new Audio(breakoutMusicFile);
+    this.breakoutBgMusicElement.loop = true;
+
+    this.spaceInvadersBgMusicElement = new Audio(spaceInvadersMusicFile);
+    this.spaceInvadersBgMusicElement.loop = true;
 
     this.volume = savedVol !== null ? parseFloat(savedVol) : 0.2;
     this.isMuted = savedMute === 'true';
+    
+    this.bgMusicElement.volume = this.volume;
+    this.bgMusicElement.muted = this.isMuted;
+    this.tetrisBgMusicElement.volume = this.volume;
+    this.tetrisBgMusicElement.muted = this.isMuted;
+    this.breakoutBgMusicElement.volume = this.volume;
+    this.breakoutBgMusicElement.muted = this.isMuted;
+    this.spaceInvadersBgMusicElement.volume = this.volume;
+    this.spaceInvadersBgMusicElement.muted = this.isMuted;
   }
 
   init() {
@@ -83,16 +112,45 @@ class AudioService {
     if (!this.ctx) return;
     this.currentGame = game;
     this.isPlaying = true;
+
+    if (game === 'snake') {
+      if (this.bgMusicElement) {
+        this.bgMusicElement.currentTime = 0;
+        this.bgMusicElement.play().catch(e => console.error("Audio playback error:", e));
+      }
+      return; // Skip procedural music
+    }
+
+    if (game === 'tetris') {
+      if (this.tetrisBgMusicElement) {
+        this.tetrisBgMusicElement.currentTime = 0;
+        this.tetrisBgMusicElement.play().catch(e => console.error("Audio playback error:", e));
+      }
+      return; // Skip procedural music
+    }
+
+    if (game === 'breakout') {
+      if (this.breakoutBgMusicElement) {
+        this.breakoutBgMusicElement.currentTime = 0;
+        this.breakoutBgMusicElement.play().catch(e => console.error("Audio playback error:", e));
+      }
+      return; // Skip procedural music
+    }
+
+    if (game === 'spaceinvaders') {
+      if (this.spaceInvadersBgMusicElement) {
+        this.spaceInvadersBgMusicElement.currentTime = 0;
+        this.spaceInvadersBgMusicElement.play().catch(e => console.error("Audio playback error:", e));
+      }
+      return; // Skip procedural music
+    }
+
     this.nextNoteTime = this.ctx.currentTime + 0.1;
     this.beat = 0;
     this.loopCount = 0;
 
     // Dynamisches Tempo je nach Spiel
     switch(game) {
-      case 'snake': this.tempo = 130; break;
-      case 'tetris': this.tempo = 140; break;
-      case 'spaceinvaders': this.tempo = 100; break;
-      case 'breakout': this.tempo = 145; break;
       default: this.tempo = 118; break;
     }
 
@@ -102,6 +160,56 @@ class AudioService {
   stopMusic() {
     this.isPlaying = false;
     if (this.timer) clearTimeout(this.timer);
+    if (this.bgMusicElement) {
+      this.bgMusicElement.pause();
+      this.bgMusicElement.currentTime = 0;
+    }
+    if (this.tetrisBgMusicElement) {
+      this.tetrisBgMusicElement.pause();
+      this.tetrisBgMusicElement.currentTime = 0;
+    }
+    if (this.breakoutBgMusicElement) {
+      this.breakoutBgMusicElement.pause();
+      this.breakoutBgMusicElement.currentTime = 0;
+    }
+    if (this.spaceInvadersBgMusicElement) {
+      this.spaceInvadersBgMusicElement.pause();
+      this.spaceInvadersBgMusicElement.currentTime = 0;
+    }
+  }
+
+  pauseMusic() {
+    this.isPlaying = false;
+    if (this.timer) clearTimeout(this.timer);
+    if (this.bgMusicElement && !this.bgMusicElement.paused) {
+      this.bgMusicElement.pause();
+    }
+    if (this.tetrisBgMusicElement && !this.tetrisBgMusicElement.paused) {
+      this.tetrisBgMusicElement.pause();
+    }
+    if (this.breakoutBgMusicElement && !this.breakoutBgMusicElement.paused) {
+      this.breakoutBgMusicElement.pause();
+    }
+    if (this.spaceInvadersBgMusicElement && !this.spaceInvadersBgMusicElement.paused) {
+      this.spaceInvadersBgMusicElement.pause();
+    }
+  }
+
+  resumeMusic() {
+    if (this.isPlaying) return;
+    this.isPlaying = true;
+    if (this.currentGame === 'snake') {
+      if (this.bgMusicElement) this.bgMusicElement.play().catch(e => console.error("Audio playback error:", e));
+    } else if (this.currentGame === 'tetris') {
+      if (this.tetrisBgMusicElement) this.tetrisBgMusicElement.play().catch(e => console.error("Audio playback error:", e));
+    } else if (this.currentGame === 'breakout') {
+      if (this.breakoutBgMusicElement) this.breakoutBgMusicElement.play().catch(e => console.error("Audio playback error:", e));
+    } else if (this.currentGame === 'spaceinvaders') {
+      if (this.spaceInvadersBgMusicElement) this.spaceInvadersBgMusicElement.play().catch(e => console.error("Audio playback error:", e));
+    } else {
+      this.nextNoteTime = this.ctx?.currentTime ? this.ctx.currentTime + 0.1 : 0;
+      this.scheduler();
+    }
   }
 
   scheduler() {
@@ -124,57 +232,7 @@ class AudioService {
 
     const game = this.currentGame;
 
-    if (game === 'snake') {
-      if (this.beat % 4 === 0) this.kick(t);
-      if (this.beat % 2 !== 0) this.hihat(t);
-      if (this.beat % 8 === 4) this.snare(t);
-
-      const part = this.loopCount % 2; // A-B pattern
-      if (part === 0) {
-        const bassLine = [36, 36, 48, 36, 36, 36, 46, 45];
-        this.bass(t, this.midiToFreq(bassLine[this.beat % 8]), true);
-      } else {
-        const bassLine = [36, 36, 36, 36, 43, 43, 41, 41];
-        this.bass(t, this.midiToFreq(bassLine[this.beat % 8]), true);
-      }
-
-      // Add a lead melody in the second half of the full loop
-      if (this.loopCount >= 2) {
-        const lead = [72, 75, 72, 77, 72, 75, 72, 80];
-        if (this.beat % 4 === 0) {
-          this.arp(t, this.midiToFreq(lead[Math.floor(this.beat / 4) % 8]), 0.8);
-        }
-      }
-    } 
-    else if (game === 'tetris') {
-      if (this.beat % 4 === 0) this.kick(t);
-      if (this.beat % 4 === 2) this.snare(t);
-
-      if (this.loopCount < 3) {
-        const tetrisLead = [76, 71, 72, 74, 72, 71, 69, 69, 72, 76, 74, 72, 71, 71, 72, 74];
-        this.arp(t, this.midiToFreq(tetrisLead[this.beat % 16]), 0.6);
-        
-        const bassNote = (this.beat % 16 < 8) ? 45 : 40;
-        if (this.beat % 2 === 0) this.bass(t, this.midiToFreq(bassNote), false);
-      } else {
-        // Bridge part
-        const bridgeLead = [72, 72, 74, 74, 76, 76, 77, 77];
-        if (this.beat % 4 === 0) this.arp(t, this.midiToFreq(bridgeLead[Math.floor(this.beat / 4) % 8]), 1.0);
-        const bridgeBass = [41, 41, 43, 43, 45, 45, 46, 46];
-        if (this.beat % 2 === 0) this.bass(t, this.midiToFreq(bridgeBass[Math.floor(this.beat / 2) % 8]), false);
-      }
-    }
-    else if (game === 'spaceinvaders') {
-      if (this.beat % 4 === 0) this.kick(t);
-      
-      const bassNotes = [[41, 40, 39, 38], [41, 41, 39, 39], [41, 34, 39, 33], [38, 38, 38, 38]];
-      const currentBassLine = bassNotes[this.loopCount];
-      if (this.beat % 4 === 0) this.bass(t, this.midiToFreq(currentBassLine[Math.floor(this.beat / 4) % 4]), true);
-
-      if (this.loopCount === 2 && this.beat % 16 === 0) this.arp(t, this.midiToFreq(84), 1.5);
-      if (this.loopCount === 3 && this.beat % 8 === 0) this.arp(t, this.midiToFreq(84 + Math.floor((this.beat % 16) / 8)), 1.5);
-    }
-    else if (game === 'breakout') {
+    if (game === 'breakout') {
       if (this.beat % 4 === 0) this.kick(t);
       if (this.beat % 2 !== 0) this.hihat(t);
       if (this.beat % 4 === 2) this.snare(t);
@@ -286,8 +344,22 @@ class AudioService {
   }
 
   midiToFreq(n: number) { return 440 * Math.pow(2, (n - 69) / 12); }
-  setMasterVolume(val: number) { this.volume = val; if(this.masterGain && this.ctx) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : val, this.ctx.currentTime, 0.05); }
-  setMuted(m: boolean) { this.isMuted = m; if(this.masterGain && this.ctx) this.masterGain.gain.setTargetAtTime(m ? 0 : this.volume, this.ctx.currentTime, 0.05); }
+  setMasterVolume(val: number) { 
+    this.volume = val; 
+    if(this.masterGain && this.ctx) this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : val, this.ctx.currentTime, 0.05); 
+    if(this.bgMusicElement) this.bgMusicElement.volume = val;
+    if(this.tetrisBgMusicElement) this.tetrisBgMusicElement.volume = val;
+    if(this.breakoutBgMusicElement) this.breakoutBgMusicElement.volume = val;
+    if(this.spaceInvadersBgMusicElement) this.spaceInvadersBgMusicElement.volume = val;
+  }
+  setMuted(m: boolean) { 
+    this.isMuted = m; 
+    if(this.masterGain && this.ctx) this.masterGain.gain.setTargetAtTime(m ? 0 : this.volume, this.ctx.currentTime, 0.05); 
+    if(this.bgMusicElement) this.bgMusicElement.muted = m;
+    if(this.tetrisBgMusicElement) this.tetrisBgMusicElement.muted = m;
+    if(this.breakoutBgMusicElement) this.breakoutBgMusicElement.muted = m;
+    if(this.spaceInvadersBgMusicElement) this.spaceInvadersBgMusicElement.muted = m;
+  }
 }
 
 export const audioService = new AudioService();
