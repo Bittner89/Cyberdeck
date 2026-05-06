@@ -13,11 +13,16 @@ import { scoreService } from './services/scoreService';
 import { useAppContext } from './context/AppContext';
 import { SIDEBAR_ITEMS } from './menuConfig';
 import './styles/effects.css';
+import { useIsMobile } from './hooks/useIsMobile';
+import MobileControls from './components/ui/MobileControls';
 
 function App() {
   const { user, currentView, navigate, sidebarIndex, setSidebarIndex } = useAppContext();
   const [isBooting, setIsBooting] = useState(true);
   const [bootLines, setBootLines] = useState<string[]>([]);
+
+  const isMobile = useIsMobile();
+  const isGameActive = ['snake', 'tetris', 'spaceinvaders', 'breakout'].includes(currentView);
 
   // FAKE BOOT SEQUENCE
   useEffect(() => {
@@ -80,15 +85,15 @@ function App() {
   }, [currentView, sidebarIndex, navigate, setSidebarIndex]);
 
   return (
-    <div onMouseDown={() => audioService.init()} className="w-full h-screen bg-black p-2 md:p-6 overflow-hidden select-none font-vt323">
-      <div className="w-full h-full crt-frame flex flex-col md:flex-row relative">
+    <div onMouseDown={() => audioService.init()} className={`w-full bg-black overflow-hidden select-none font-vt323 ${isMobile ? 'h-[100dvh] flex flex-col' : 'p-6 h-screen'}`}>
+      <div className={`w-full flex-1 min-h-0 flex relative ${isMobile ? 'flex-col overflow-hidden' : 'crt-frame flex-row'}`}>
         <div className="crt-overlay" /><div className="crt-vignette" /><div className="scanline" />
 
-        {user && !isBooting && (
+        {user && !isBooting && (!isMobile || !isGameActive) && (
           <Sidebar />
         )}
 
-        <main className="flex-1 relative bg-cyber-grid flex items-center justify-center z-10">
+        <main className="flex-1 relative bg-cyber-grid flex flex-col items-center justify-center z-10 overflow-hidden">
           {isBooting ? (
             <div className="w-full h-full p-10 font-vt323 text-neon-cyan flex flex-col justify-end pb-20">
               {bootLines.map((line, i) => (
@@ -117,6 +122,11 @@ function App() {
           )}
         </main>
       </div>
+
+      {/* MOBILE CONTROLS (Wird nur auf dem Smartphone im Spiel angezeigt) */}
+      {user && !isBooting && isMobile && isGameActive && (
+        <MobileControls />
+      )}
     </div>
   );
 }

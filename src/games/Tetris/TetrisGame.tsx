@@ -3,6 +3,7 @@ import { useTetrisLogic } from './useTetrisLogic';
 import { audioService } from '../../services/audioService';
 import { scoreService, ScoreEntry } from '../../services/scoreService';
 import { useAppContext } from '../../context/AppContext';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 interface TetrisGameProps {
   onGameOver: (score: number) => void;
@@ -15,6 +16,8 @@ export default function TetrisGame({ onGameOver }: TetrisGameProps) {
   const [realHighscores, setRealHighscores] = useState<ScoreEntry[]>([]);
   const width = 800;
   const height = 800;
+
+  const isMobile = useIsMobile();
 
   const { 
     board, piece, nextPiece, score, gameOver, isPaused, setIsPaused, 
@@ -151,6 +154,54 @@ export default function TetrisGame({ onGameOver }: TetrisGameProps) {
     ctx.shadowBlur = 0;
   };
 
+  // --- MOBILE VERSION ---
+  if (isMobile) {
+    return (
+      <div className="flex flex-col w-full h-full max-h-full overflow-hidden relative bg-black z-20">
+        <div className="relative w-full flex-1 min-h-0 flex items-center justify-center bg-black overflow-hidden">
+          <canvas ref={canvasRef} width={width} height={height} className="w-full h-full object-contain" />
+
+          {!hasBooted && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/90 z-20">
+              <div className="text-center p-4 border border-neon-cyan animate-pulse">
+                <h2 className="text-3xl text-neon-cyan mb-4 italic">BLOCK_ENCRYPT</h2>
+                <p className="text-sm text-neon-pink animate-bounce">PRESS [ENT] TO INIT</p>
+              </div>
+            </div>
+          )}
+
+          {hasBooted && isPaused && !gameOver && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-25 backdrop-blur-sm">
+              <div className="text-center p-4 border-2 border-neon-cyan bg-black shadow-neon">
+                <h2 className="text-3xl text-neon-cyan mb-4 italic">Paused</h2>
+                <div className="flex flex-col gap-2">
+                  <button onClick={() => setIsPaused(false)} className="border border-neon-cyan p-2 text-neon-cyan text-sm">Continue [ESC]</button>
+                  <button onClick={handleAbort} className="border border-neon-pink p-2 text-neon-pink text-sm">Abort [Exit]</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {gameOver && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-30 font-vt323">
+              <h2 className="text-neon-pink text-5xl mb-2 shadow-neon-pink">CORE_CRASH</h2>
+              <button onClick={() => onGameOver(score)} className="border border-neon-cyan p-2 mt-4 text-neon-cyan">UPLOAD_SCORE</button>
+            </div>
+          )}
+        </div>
+
+        {/* MOBILE SCORE DISPLAY */}
+        <div className="w-full shrink-0 font-vt323 text-neon-cyan border-t border-neon-cyan/20 bg-neon-cyan/5 p-2 z-10">
+          <div className="flex justify-between items-end">
+            <span className="text-sm opacity-50 uppercase tracking-widest">Current_Score</span>
+            <span className="text-4xl text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] tabular-nums leading-none">{score}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- DESKTOP VERSION ---
   return (
     <div className="flex flex-row gap-6 p-4 bg-black/60 border-2 border-neon-cyan shadow-neon-big animate-glitch-entry h-212.5">
       <div className="relative border-4 border-neon-cyan/50 shadow-neon">
