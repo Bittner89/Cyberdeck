@@ -33,7 +33,7 @@ export default function MainMenuView() {
   }, [activeIndex]);
 
   return (
-    <div className="w-full max-w-4xl animate-glitch-entry p-8 font-vt323 bg-black/80 border border-neon-cyan/20 chamfer relative shadow-neon">
+    <div className="w-full max-w-4xl animate-glitch-entry p-4 md:p-8 font-vt323 bg-black/80 border border-neon-cyan/20 chamfer relative shadow-neon">
       {/* Decorative HUD Elements */}
       <div className="absolute top-2 left-2 text-[10px] text-neon-cyan/50">+</div>
       <div className="absolute top-2 right-2 text-[10px] text-neon-cyan/50">+</div>
@@ -41,20 +41,20 @@ export default function MainMenuView() {
       <div className="absolute bottom-2 right-2 text-[10px] text-neon-cyan/50">+</div>
 
       {/* WELCOME SECTION */}
-      <div className="mb-12 border-l-4 border-neon-pink pl-8 py-2">
-        <h1 className="text-6xl text-white tracking-tighter italic leading-none">
+      <div className="mb-6 md:mb-12 border-l-4 border-neon-pink pl-4 md:pl-8 py-2">
+        <h1 className="text-4xl md:text-6xl text-white tracking-tighter italic leading-none">
           WELCOME, <span className="text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] uppercase glitch-hover inline-block">AGENT_{user || 'UNKNOWN'}</span>
         </h1>
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-2 mt-2 md:mt-4">
           <span className="w-2 h-2 bg-neon-cyan animate-pulse"></span>
-          <p className="text-neon-cyan/60 text-xl tracking-[0.3em] uppercase">
+          <p className="text-neon-cyan/60 text-sm md:text-xl tracking-[0.1em] md:tracking-[0.3em] uppercase">
             System_Ready // Connection_Stable
           </p>
         </div>
       </div>
 
       {/* Top Scroll Indicator & Navigation Hint */}
-      <div className="flex justify-between text-neon-cyan/40 animate-pulse mb-2 text-[10px] tracking-[0.5em] uppercase">
+      <div className="flex justify-between text-neon-cyan/40 animate-pulse mb-2 text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.5em] uppercase">
         <span>[ USE ◄ / ► TO NAVIGATE ]</span>
         <span>▲ SCROLL_DATA ▲</span>
       </div>
@@ -88,7 +88,7 @@ export default function MainMenuView() {
             {/* Info Text (Mitte) */}
             <div className="flex-1 py-2">
               <div className="flex justify-between items-start mb-2">
-                <h3 className={`text-2xl md:text-3xl tracking-widest transition-colors glitch-hover ${
+                <h3 className={`text-xl md:text-3xl tracking-widest transition-colors glitch-hover ${
                   activeIndex === i ? 'text-white' : 'text-neon-cyan/60'
                 }`}>
                   {opt.label}
@@ -97,7 +97,7 @@ export default function MainMenuView() {
                   <span className="text-neon-cyan animate-ping text-xs mr-4 hidden md:block">● LIVE</span>
                 )}
               </div>
-              <p className="text-sm md:text-base text-neon-cyan/50 leading-tight uppercase tracking-tighter">
+              <p className="text-xs md:text-base text-neon-cyan/50 leading-tight uppercase tracking-tighter">
                 {opt.desc}
               </p>
               <div className={`mt-3 text-[10px] tracking-[0.3em] uppercase transition-opacity duration-300 ${activeIndex === i ? 'text-neon-pink opacity-100' : 'opacity-0'}`}>
@@ -123,12 +123,12 @@ export default function MainMenuView() {
       </div>
 
       {/* Bottom Scroll Indicator */}
-      <div className="flex justify-end text-neon-cyan/40 animate-pulse mt-2 text-[10px] tracking-[0.5em] uppercase">
+      <div className="flex justify-end text-neon-cyan/40 animate-pulse mt-2 text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.5em] uppercase">
         <span>▼ SCROLL_DATA ▼</span>
       </div>
 
       {/* SYSTEM FOOTER */}
-      <div className="mt-12 pt-4 border-t border-neon-cyan/10 flex justify-between items-center text-[10px] text-neon-cyan/20 uppercase tracking-[0.5em]">
+      <div className="mt-6 md:mt-12 pt-4 border-t border-neon-cyan/10 flex justify-between items-center text-[8px] md:text-[10px] text-neon-cyan/20 uppercase tracking-[0.2em] md:tracking-[0.5em]">
         <span>Sector_01 // Neural_Link_Active</span>
         <span className="animate-pulse italic">Access_Level: Administrator</span>
       </div>
