@@ -16,7 +16,10 @@
 html, body {
   @apply bg-black text-neon-cyan font-sans m-0 p-0 overflow-hidden w-full h-full;
   user-select: none;
+  -webkit-user-select: none; /* Für iOS Safari */
   touch-action: none;
+  overscroll-behavior: none; /* Verhindert das "Pull-to-Refresh" Neuladen auf dem Handy */
+  -webkit-tap-highlight-color: transparent; /* Verhindert den blauen Kasten beim Tippen auf Buttons */
 }
 
 #root {

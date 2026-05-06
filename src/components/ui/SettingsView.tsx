@@ -5,8 +5,12 @@ export default function SettingsView() {
   const { volume, isMuted, changeVolume, toggleMute } = useAppContext();
 
   return (
-    <div className="p-10 font-vt323 text-neon-cyan max-w-2xl w-full animate-fade-in">
-      <header className="mb-10 border-b border-neon-cyan/30 pb-4">
+    <div className="w-full lg:w-[1164px] lg:max-w-full max-w-2xl lg:h-[850px] max-h-full flex flex-col items-center p-4 md:p-10 bg-black/90 border-2 border-neon-cyan shadow-neon-big font-vt323 text-neon-cyan animate-fade-in chamfer relative">
+      <div className="absolute top-2 left-2 text-neon-cyan/50 text-[10px]">CFG-SYS</div>
+      <div className="absolute bottom-2 right-2 text-neon-cyan/50 text-[10px]">V-3.0</div>
+
+      <div className="w-full max-w-2xl flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-4">
+      <header className="mb-10 border-b border-neon-cyan/30 pb-4 shrink-0">
         <h2 className="text-5xl italic uppercase text-glow">Hardware_Settings</h2>
         <p className="text-xs opacity-50 tracking-[0.3em] mt-2"> CORE_VOLTAGE_ADJUSTMENT</p>
       </header>
@@ -65,6 +69,7 @@ export default function SettingsView() {
           <p> CHANGES_COMMITTED_AUTOMATICALLY: TRUE</p>
           <p> ENCRYPTION_LAYER: ACTIVE</p>
         </section>
+      </div>
       </div>
     </div>
   );
