@@ -1,8 +1,42 @@
 import React from 'react';
 import { useAppContext } from '../../context/AppContext';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 export default function SettingsView() {
   const { volume, isMuted, changeVolume, toggleMute } = useAppContext();
+  const isMobile = useIsMobile();
+
+  // --- MOBILE APP VERSION ---
+  if (isMobile) {
+    return (
+      <div className="w-full h-full flex flex-col z-20 bg-transparent p-4 overflow-y-auto custom-scrollbar">
+        <h2 className="text-3xl text-neon-cyan tracking-tighter uppercase italic mb-6 mt-2">SYS_CONFIG</h2>
+        
+        <div className="bg-[#050a0a] border border-neon-cyan/20 rounded-2xl p-5 mb-4 shadow-[0_4px_15px_rgba(0,0,0,0.5)]">
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-lg text-neon-cyan/80 uppercase">Volume</span>
+            <span className="text-2xl text-white">{isMuted ? 'MUTE' : `${volume}%`}</span>
+          </div>
+          
+          <input 
+            type="range" min="0" max="100" value={volume} 
+            onChange={(e) => changeVolume(parseInt(e.target.value))} 
+            disabled={isMuted}
+            className={`w-full accent-neon-cyan h-3 rounded-full cursor-pointer mb-6 ${isMuted ? 'opacity-20' : 'opacity-100'}`}
+          />
+
+          <button 
+            onClick={toggleMute}
+            className={`w-full py-4 rounded-xl text-lg font-bold uppercase transition-colors active:scale-95 ${isMuted ? 'bg-neon-pink text-black' : 'bg-neon-cyan/10 text-neon-cyan border border-neon-cyan'}`}
+          >
+            {isMuted ? 'UNMUTE AUDIO' : 'MUTE AUDIO'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // --- DESKTOP VERSION ---
 
   return (
     <div className="w-full lg:w-[1164px] lg:max-w-full max-w-2xl lg:h-[850px] max-h-full flex flex-col items-center p-4 md:p-10 bg-black/90 border-2 border-neon-cyan shadow-neon-big font-vt323 text-neon-cyan animate-fade-in chamfer relative">
