@@ -1,6 +1,6 @@
 import snakeMusicFile from '../components/mp3/Neon_Coil.mp3';
 import tetrisMusicFile from '../components/mp3/Neon_Block_Drop.mp3';
-import breakoutMusicFile from '../components/mp3/neon_paddle_run.mp3';
+import breakoutMusicFile from '../components/mp3/Neon_Paddle_Run.mp3';
 import spaceInvadersMusicFile from '../components/mp3/Neon_Invader_Grid.mp3';
 
 class AudioService {
