@@ -50,15 +50,11 @@ function App() {
   const handleGameOver = async (finalScore: number, gameType: string) => {
     if (!user) {
       console.warn("ACCESS_DENIED: No agent identity for score sync.");
-      navigate('leaderboard');
       return;
     }
     
     // Speichert den Score
     await scoreService.saveScore(user, finalScore, gameType);
-    
-    // Nach Speicherung zum Leaderboard wechseln
-    navigate('leaderboard'); 
   };
 
   useEffect(() => {

@@ -29,6 +29,16 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
     scoreService.getHighscores('spaceinvaders').then(setRealHighscores);
   }, [gameOver]);
 
+  // Automatischer Score-Upload bei Game Over
+  const scoreUploadedRef = useRef(false);
+  useEffect(() => {
+    if (!gameOver) scoreUploadedRef.current = false;
+    if (gameOver && score > 0 && !scoreUploadedRef.current) {
+      onGameOver(score);
+      scoreUploadedRef.current = true;
+    }
+  }, [gameOver, score, onGameOver]);
+
   // Musik pausieren und fortsetzen
   useEffect(() => {
     if (!hasBooted || gameOver) return;
@@ -43,6 +53,12 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
   const handleAbort = () => {
     audioService.stopMusic();
     navigate('menu');
+  };
+
+  const handleRestart = () => {
+    resetGame();
+    setHasBooted(false);
+    audioService.stopMusic();
   };
 
   // Canvas Drawing und Game Loop
@@ -178,12 +194,20 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
 
       if (!hasBooted && (e.key === 'Enter' || e.key === ' ')) {
         audioService.init(); 
-        setHasBooted(true);
         resetGame();
+        setHasBooted(true);
+        setIsPaused(false);
+        audioService.startMusic('spaceinvaders');
         return;
       }
 
-      if (!hasBooted || gameOver) return;
+      if (!hasBooted) return;
+
+      if (gameOver) {
+        if (e.key.toLowerCase() === 'r') handleRestart();
+        if (e.key.toLowerCase() === 'q') handleAbort();
+        return;
+      }
 
       if (e.key === 'Escape') {
         setIsPaused(prev => !prev);
@@ -217,7 +241,8 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
                 <h2 className="text-3xl text-neon-cyan mb-4 italic">Paused</h2>
                 <div className="flex flex-col gap-2">
                   <button onClick={() => setIsPaused(false)} className="border border-neon-cyan p-2 text-neon-cyan text-sm">Continue [ESC]</button>
-                  <button onClick={handleAbort} className="border border-neon-pink p-2 text-neon-pink text-sm">Abort [Exit]</button>
+                  <button onClick={handleRestart} className="border border-neon-cyan p-2 text-neon-cyan text-sm">Restart [R]</button>
+                  <button onClick={handleAbort} className="border border-neon-pink p-2 text-neon-pink text-sm">Dashboard [Q]</button>
                 </div>
               </div>
             </div>
@@ -227,8 +252,7 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-30 font-vt323 p-4">
               <h2 className="text-neon-pink text-6xl mb-6 shadow-neon-pink uppercase">Ship_Destroyed</h2>
               <div className="flex flex-col gap-3 w-full max-w-[250px]">
-                <button onClick={resetGame} className="border border-neon-cyan p-3 text-neon-cyan active:bg-neon-cyan active:text-black text-xl text-center transition-colors">REBOOT</button>
-                <button onClick={() => onGameOver(score)} className="border border-neon-cyan p-3 text-neon-cyan active:bg-neon-cyan active:text-black text-xl text-center transition-colors">UPLOAD_SCORE</button>
+                <button onClick={handleRestart} className="border border-neon-cyan p-3 text-neon-cyan active:bg-neon-cyan active:text-black text-xl text-center transition-colors">REBOOT</button>
                 <button onClick={handleAbort} className="border border-neon-pink p-3 text-neon-pink active:bg-neon-pink active:text-black text-xl text-center transition-colors">DASHBOARD</button>
               </div>
             </div>
@@ -251,9 +275,9 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
 
   // --- DESKTOP VERSION ---
   return (
-    <div className="flex flex-row gap-6 p-4 bg-black/60 border-2 border-neon-cyan shadow-neon-big animate-glitch-entry h-212.5">
-      <div className="relative border-4 border-neon-cyan/50 shadow-neon">
-        <canvas ref={canvasRef} width={width} height={height} className="bg-black" />
+    <div className="flex flex-row gap-6 p-4 bg-black/60 border-2 border-neon-cyan shadow-neon-big animate-glitch-entry w-full lg:w-[1164px] lg:h-[850px] max-h-full">
+      <div className="relative border-4 border-neon-cyan/50 shadow-neon flex-1 flex items-center justify-center bg-black overflow-hidden">
+        <canvas ref={canvasRef} width={width} height={height} className="w-full h-full object-contain" />
         
         {/* START SCREEN */}
         {!hasBooted && (
@@ -272,7 +296,8 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
               <h2 className="text-6xl text-neon-cyan mb-8 italic uppercase font-black">System_Paused</h2>
               <div className="flex flex-col gap-4">
                 <button onClick={() => setIsPaused(false)} className="border-2 border-neon-cyan p-4 text-neon-cyan hover:bg-neon-cyan hover:text-black text-2xl transition-all uppercase">Continue_Mission [ESC]</button>
-                <button onClick={handleAbort} className="border-2 border-neon-pink p-4 text-neon-pink hover:bg-neon-pink hover:text-black text-2xl transition-all uppercase">Abort_Mission [Exit]</button>
+                <button onClick={handleRestart} className="border-2 border-neon-cyan p-4 text-neon-cyan hover:bg-neon-cyan hover:text-black text-2xl transition-all uppercase">Restart_Mission [R]</button>
+                <button onClick={handleAbort} className="border-2 border-neon-pink p-4 text-neon-pink hover:bg-neon-pink hover:text-black text-2xl transition-all uppercase">Return_to_Dashboard [Q]</button>
               </div>
             </div>
           </div>
@@ -285,8 +310,8 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
               <h2 className="text-7xl text-neon-pink mb-4 italic uppercase font-black">Ship_Destroyed</h2>
               <p className="text-3xl text-white mb-8 uppercase tracking-widest">Final_Score: {score}</p>
               <div className="flex gap-4 justify-center">
-                <button onClick={resetGame} className="border-2 border-neon-cyan p-3 text-neon-cyan hover:bg-neon-cyan hover:text-black text-xl transition-all uppercase">REBOOT</button>
-                <button onClick={() => onGameOver(score)} className="border-2 border-neon-pink p-3 text-neon-pink hover:bg-neon-pink hover:text-black text-xl transition-all uppercase">UPLOAD_SCORE</button>
+                <button onClick={handleRestart} className="border-2 border-neon-cyan p-3 text-neon-cyan hover:bg-neon-cyan hover:text-black text-xl transition-all uppercase">REBOOT [R]</button>
+                <button onClick={handleAbort} className="border-2 border-neon-pink p-3 text-neon-pink hover:bg-neon-pink hover:text-black text-xl transition-all uppercase">DASHBOARD [Q]</button>
               </div>
             </div>
           </div>
@@ -294,7 +319,7 @@ export default function SpaceInvadersGame({ onGameOver }: SpaceInvadersProps) {
       </div>
 
       {/* HIGHSCORES */}
-      <div className="w-75 font-vt323 text-neon-cyan border border-neon-cyan/20 bg-neon-cyan/5 p-4 flex flex-col overflow-hidden">
+      <div className="w-75 shrink-0 font-vt323 text-neon-cyan border border-neon-cyan/20 bg-neon-cyan/5 p-4 flex flex-col overflow-hidden">
         <h3 className="text-2xl border-b border-neon-cyan/30 pb-2 mb-4 italic uppercase tracking-tighter shadow-neon">Top_10_Agents</h3>
         <div className="flex-1 space-y-2">
           {realHighscores.map((entry, i) => (
