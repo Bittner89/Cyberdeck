@@ -183,18 +183,25 @@ export default function TetrisGame({ onGameOver }: TetrisGameProps) {
           )}
 
           {gameOver && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-30 font-vt323">
-              <h2 className="text-neon-pink text-5xl mb-2 shadow-neon-pink">CORE_CRASH</h2>
-              <button onClick={() => onGameOver(score)} className="border border-neon-cyan p-2 mt-4 text-neon-cyan">UPLOAD_SCORE</button>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-30 font-vt323 p-4">
+              <h2 className="text-neon-pink text-6xl mb-6 shadow-neon-pink uppercase">CORE_CRASH</h2>
+              <div className="flex flex-col gap-3 w-full max-w-[250px]">
+                <button onClick={resetGame} className="border border-neon-cyan p-3 text-neon-cyan active:bg-neon-cyan active:text-black text-xl text-center transition-colors">REBOOT</button>
+                <button onClick={() => onGameOver(score)} className="border border-neon-cyan p-3 text-neon-cyan active:bg-neon-cyan active:text-black text-xl text-center transition-colors">UPLOAD_SCORE</button>
+                <button onClick={handleAbort} className="border border-neon-pink p-3 text-neon-pink active:bg-neon-pink active:text-black text-xl text-center transition-colors">DASHBOARD</button>
+              </div>
             </div>
           )}
         </div>
 
         {/* MOBILE SCORE DISPLAY */}
-        <div className="w-full shrink-0 font-vt323 text-neon-cyan border-t border-neon-cyan/20 bg-neon-cyan/5 p-2 z-10">
-          <div className="flex justify-between items-end">
-            <span className="text-sm opacity-50 uppercase tracking-widest">Current_Score</span>
-            <span className="text-4xl text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] tabular-nums leading-none">{score}</span>
+        <div className="w-full shrink-0 font-vt323 text-neon-cyan border-t border-neon-cyan/20 bg-neon-cyan/5 p-2 z-10 flex items-center justify-between">
+          <button onClick={handleAbort} className="border border-neon-pink/50 text-neon-pink px-3 py-1 text-sm active:bg-neon-pink active:text-black transition-colors flex items-center gap-2">
+            <span>[←]</span> ABORT
+          </button>
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] opacity-50 uppercase tracking-widest leading-none mb-1">Current_Score</span>
+            <span className="text-3xl text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] tabular-nums leading-none">{score}</span>
           </div>
         </div>
       </div>

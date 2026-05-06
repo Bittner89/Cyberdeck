@@ -12,12 +12,10 @@ export default function MobileControls() {
   // e.preventDefault() wurde entfernt. 
   // Das CSS (touch-action: none) verhindert das Scrollen ohnehin!
   const bind = (key: string) => ({
-    onTouchStart: () => trigger(key, 'keydown'),
-    onTouchEnd: () => trigger(key, 'keyup'),
-    onTouchCancel: () => trigger(key, 'keyup'),
-    onMouseDown: () => trigger(key, 'keydown'),
-    onMouseUp: () => trigger(key, 'keyup'),
-    onMouseLeave: () => trigger(key, 'keyup'),
+    onPointerDown: () => trigger(key, 'keydown'),
+    onPointerUp: () => trigger(key, 'keyup'),
+    onPointerCancel: () => trigger(key, 'keyup'),
+    onPointerLeave: () => trigger(key, 'keyup'),
   });
 
   return (
