@@ -47,7 +47,7 @@ export default function MainMenuView() {
         </h1>
         <div className="flex items-center gap-2 mt-2 md:mt-4">
           <span className="w-2 h-2 bg-neon-cyan animate-pulse"></span>
-          <p className="text-neon-cyan/60 text-sm md:text-xl tracking-[0.1em] md:tracking-[0.3em] uppercase">
+          <p className="text-neon-cyan/60 text-sm md:text-xl tracking-widest md:tracking-[0.3em] uppercase">
             System_Ready // Connection_Stable
           </p>
         </div>

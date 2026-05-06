@@ -85,7 +85,7 @@ function App() {
   }, [currentView, sidebarIndex, navigate, setSidebarIndex]);
 
   return (
-    <div onMouseDown={() => audioService.init()} className={`w-full bg-black overflow-hidden select-none font-vt323 ${isMobile ? 'h-[100dvh] flex flex-col' : 'p-6 h-screen'}`}>
+    <div onMouseDown={() => audioService.init()} className={`w-full bg-black overflow-hidden select-none font-vt323 ${isMobile ? 'h-dvh flex flex-col' : 'p-6 h-screen'}`}>
       <div className={`w-full flex-1 min-h-0 flex relative ${isMobile ? 'flex-col overflow-hidden' : 'crt-frame flex-row'}`}>
         <div className="crt-overlay" /><div className="crt-vignette" /><div className="scanline" />
 
