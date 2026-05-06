@@ -9,7 +9,7 @@ export default function Sidebar() {
   } = useAppContext();
 
   return (
-    <aside className="w-full md:w-64 bg-black/80 border-r border-neon-cyan/30 flex flex-col z-20 font-vt323">
+    <aside className="w-full md:w-64 bg-black/90 border-r border-neon-cyan/30 flex flex-col z-20 font-vt323 relative">
       {/* USER PROFILE SECTION */}
       <div className="p-4 border-b border-neon-cyan/20 bg-neon-cyan/5">
         <div className="flex items-center gap-3">
@@ -28,7 +28,7 @@ export default function Sidebar() {
         {user && (
           <button 
             onClick={logout}
-            className="mt-3 w-full border border-neon-pink/50 py-1 text-[10px] text-neon-pink hover:bg-neon-pink hover:text-black transition-all uppercase tracking-widest flex items-center justify-center gap-2"
+            className="mt-3 w-full border border-neon-pink/50 py-1 text-[10px] text-neon-pink hover:bg-neon-pink hover:text-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 chamfer-btn glitch-hover"
           >
             <span>[→]</span> DISCONNECT_SESSION
           </button>
@@ -37,7 +37,7 @@ export default function Sidebar() {
         {!user && (
           <button 
             onClick={() => navigate('login')}
-            className="mt-3 w-full border border-neon-cyan/50 py-1 text-[10px] text-neon-cyan hover:bg-neon-cyan hover:text-black transition-all uppercase tracking-widest"
+            className="mt-3 w-full border border-neon-cyan/50 py-1 text-[10px] text-neon-cyan hover:bg-neon-cyan hover:text-black transition-all uppercase tracking-widest chamfer-btn glitch-hover"
           >
             ESTABLISH_LINK
           </button>
@@ -50,7 +50,7 @@ export default function Sidebar() {
           <button
             key={item.id}
             onClick={() => navigate(item.id)}
-            className={`w-full flex items-center gap-4 px-4 py-3 transition-all duration-200 group
+            className={`w-full flex items-center gap-4 px-4 py-3 transition-all duration-200 group chamfer-btn glitch-hover mb-1
               ${sidebarIndex === index ? 'bg-neon-cyan/10 text-white' : 'text-neon-cyan/40 hover:text-neon-cyan/70'}`}
           >
             <span className="w-4 flex justify-center">{item.icon}</span>
