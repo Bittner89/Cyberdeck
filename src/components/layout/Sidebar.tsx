@@ -38,7 +38,7 @@ export default function Sidebar() {
         {user && (
           <button 
             onClick={logout}
-            className="mt-3 w-full border border-neon-pink/50 py-1 text-[10px] text-neon-pink hover:bg-neon-pink hover:text-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 chamfer-btn glitch-hover"
+            className="mt-3 w-full border border-neon-pink/50 py-1 text-[10px] text-neon-pink hover:bg-neon-pink hover:text-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 chamfer-btn"
           >
             <span>[→]</span> DISCONNECT_SESSION
           </button>
@@ -47,7 +47,7 @@ export default function Sidebar() {
         {!user && (
           <button 
             onClick={() => navigate('login')}
-            className="mt-3 w-full border border-neon-cyan/50 py-1 text-[10px] text-neon-cyan hover:bg-neon-cyan hover:text-black transition-all uppercase tracking-widest chamfer-btn glitch-hover"
+            className="mt-3 w-full border border-neon-cyan/50 py-1 text-[10px] text-neon-cyan hover:bg-neon-cyan hover:text-black transition-all uppercase tracking-widest chamfer-btn"
           >
             ESTABLISH_LINK
           </button>
@@ -60,7 +60,7 @@ export default function Sidebar() {
           <button
             key={item.id}
             onClick={() => navigate(item.id)}
-            className={`w-full flex items-center gap-4 px-4 py-3 transition-all duration-200 group chamfer-btn glitch-hover mb-1
+            className={`w-full flex items-center gap-4 px-4 py-3 transition-all duration-200 group chamfer-btn mb-1
               ${sidebarIndex === index ? 'bg-neon-cyan/10 text-white' : 'text-neon-cyan/40 hover:text-neon-cyan/70'}`}
           >
             <span className="w-4 flex justify-center">{item.icon}</span>
