@@ -311,9 +311,9 @@ function BreakoutGame({ onGameOver }: BreakoutProps) {
           </div>
         )}
       </div>
-      <div className="w-75 shrink-0 font-vt323 text-neon-cyan border border-neon-cyan/20 bg-neon-cyan/5 p-4 flex flex-col overflow-hidden">
-        <h3 className="text-2xl border-b border-neon-cyan/30 pb-2 mb-4 italic uppercase tracking-tighter shadow-neon">Top_10_Agents</h3>
-        <div className="flex-1 space-y-2">
+      <div className="w-72 shrink-0 font-vt323 text-neon-cyan border border-neon-cyan/20 bg-neon-cyan/5 p-4 flex flex-col overflow-hidden">
+        <h3 className="shrink-0 text-2xl border-b border-neon-cyan/30 pb-2 mb-4 italic uppercase tracking-tighter shadow-neon">Top_10_Agents</h3>
+        <div className="flex-1 space-y-2 overflow-y-auto min-h-0 custom-scrollbar pr-2">
           {realHighscores.map((entry, i) => (
             <div key={entry.id} className="flex items-center text-lg border-b border-neon-cyan/5 pb-1 group hover:bg-neon-cyan/10 px-1">
               <span className="opacity-40 inline-block w-10 shrink-0">#{String(i + 1).padStart(2, '0')}</span>
@@ -322,7 +322,7 @@ function BreakoutGame({ onGameOver }: BreakoutProps) {
             </div>
           ))}
         </div>
-        <div className="mt-4 pt-4 border-t border-neon-cyan/30 text-right">
+        <div className="shrink-0 mt-4 pt-4 border-t border-neon-cyan/30 text-right">
           <div className="flex justify-between items-end mb-2">
             <span className="text-sm opacity-50 uppercase tracking-widest">Level_{levelUI}</span>
             <span className="text-sm opacity-50 uppercase tracking-widest">Current_Score</span>
