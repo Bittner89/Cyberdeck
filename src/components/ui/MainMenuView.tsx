@@ -79,7 +79,7 @@ export default function MainMenuView() {
       {/* WELCOME SECTION */}
       <div className="mb-6 md:mb-12 border-l-4 border-neon-pink pl-4 md:pl-8 py-2">
         <h1 className="text-4xl md:text-6xl text-white tracking-tighter italic leading-none">
-          WELCOME, <span className="text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] uppercase glitch-hover inline-block">AGENT_{user || 'UNKNOWN'}</span>
+          WELCOME, <span className="text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] uppercase inline-block">AGENT {user || 'UNKNOWN'}</span>
         </h1>
         <div className="flex items-center gap-2 mt-2 md:mt-4">
           <span className="w-2 h-2 bg-neon-cyan animate-pulse"></span>
@@ -124,7 +124,7 @@ export default function MainMenuView() {
             {/* Info Text (Mitte) */}
             <div className="flex-1 py-2">
               <div className="flex justify-between items-start mb-2">
-                <h3 className={`text-xl md:text-3xl tracking-widest transition-colors glitch-hover ${
+                <h3 className={`text-xl md:text-3xl tracking-widest transition-colors ${
                   activeIndex === i ? 'text-white' : 'text-neon-cyan/60'
                 }`}>
                   {opt.label}

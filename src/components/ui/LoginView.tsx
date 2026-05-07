@@ -71,7 +71,7 @@ export default function LoginView() {
 
       <div className="w-full max-w-md">
       <div className="text-center mb-10">
-        <h2 className="text-4xl text-neon-cyan mb-2 tracking-[0.3em] shadow-neon uppercase glitch-hover">
+        <h2 className="text-4xl text-neon-cyan mb-2 tracking-[0.3em] shadow-neon uppercase">
           {mode === "login" ? "ESTABLISH_LINK" : "GENERATE_ID"}
         </h2>
         <div className="h-0.5 w-full bg-neon-cyan/20"></div>
@@ -141,7 +141,7 @@ export default function LoginView() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full py-4 mt-4 border-2 transition-all duration-300 text-xl tracking-[0.4em] uppercase chamfer-btn glitch-hover
+          className={`w-full py-4 mt-4 border-2 transition-all duration-300 text-xl tracking-[0.4em] uppercase chamfer-btn
             ${loading ? 'border-gray-600 text-gray-600' : 'bg-neon-cyan/10 border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-black shadow-neon-hover'}`}
         >
           {loading ? "PROCESSING..." : mode === "login" ? "INITIALIZE" : "FINALIZE"}
