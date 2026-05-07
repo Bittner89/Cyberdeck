@@ -55,7 +55,7 @@ export default function Sidebar() {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 py-4">
+      <nav className="flex-1 py-4 overflow-y-auto min-h-0 custom-scrollbar">
         {SIDEBAR_ITEMS.map((item, index) => (
           <button
             key={item.id}
@@ -73,7 +73,7 @@ export default function Sidebar() {
       </nav>
 
       {/* AUDIO CONTROLS */}
-      <div className="p-4 border-t border-neon-cyan/20 space-y-3 bg-black/40">
+      <div className="shrink-0 p-4 border-t border-neon-cyan/20 space-y-3 bg-black/40">
         <div className="flex justify-between text-[10px] text-neon-cyan/50 uppercase tracking-tighter">
           <span>Audio_Output</span>
           <span>{isMuted ? 'Muted' : `${Math.round(volume)}%`}</span>
@@ -97,7 +97,7 @@ export default function Sidebar() {
       </div>
 
       {/* SYSTEM STATUS FOOTER */}
-      <div className="p-2 text-[8px] text-neon-cyan/20 text-center uppercase tracking-[0.3em]">
+      <div className="shrink-0 p-2 text-[8px] text-neon-cyan/20 text-center uppercase tracking-[0.3em]">
         CyberDeck v3.0.4 // Local_Host
       </div>
     </aside>
