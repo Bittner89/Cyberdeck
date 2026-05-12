@@ -129,108 +129,88 @@ export default function LeaderboardView() {
 
   // --- DESKTOP VERSION ---
   return (
-    <div className="w-full lg:w-[1164px] lg:max-w-full max-w-4xl lg:h-[850px] max-h-full flex flex-col animate-glitch-entry font-vt323 p-3 md:p-8 bg-black/90 border-2 border-neon-cyan shadow-neon-big relative z-20 chamfer">
+    <div className="w-full lg:w-[1164px] lg:max-w-full max-w-4xl lg:h-[850px] max-h-full flex flex-col animate-glitch-entry font-vt323 p-6 md:p-10 bg-[#030707]/80 border border-neon-cyan/20 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-20 backdrop-blur-md rounded-xl">
       <div className="absolute top-2 left-2 text-[10px] text-neon-cyan/50">+</div>
       <div className="absolute bottom-2 right-2 text-[10px] text-neon-cyan/50">+</div>
 
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0 mb-4 md:mb-8 border-b-2 border-neon-cyan pb-4">
-        <h2 className="text-2xl md:text-4xl text-neon-cyan tracking-tighter uppercase italic text-center md:text-left">
-          {activeTab === 'global' ? '::Global_Leaderboard::' : '::Personal_Archive::'}
-        </h2>
-        <button 
-          onClick={() => navigate('menu')} 
-          className="text-neon-pink hover:bg-neon-pink hover:text-black border border-neon-pink w-full md:w-auto px-4 md:px-6 py-1 transition-all chamfer-btn text-sm md:text-base"
-        >
-          BACK_TO_MENU
+      {/* HEADER & TABS */}
+      <div className="flex flex-col md:flex-row justify-between items-end gap-4 mb-8 border-b border-white/10 pb-6">
+        <div>
+          <h2 className="text-3xl md:text-4xl text-white tracking-[0.2em] uppercase font-light drop-shadow-[0_0_12px_rgba(0,243,255,0.4)] mb-3">
+            Score_Database
+          </h2>
+          <div className="flex gap-6 text-xs md:text-sm tracking-[0.3em]">
+            <button onClick={() => setActiveTab('global')} className={`transition-all duration-300 ${activeTab === 'global' ? 'text-neon-cyan drop-shadow-[0_0_5px_rgba(0,243,255,0.8)]' : 'text-neon-cyan/40 hover:text-neon-cyan/80'}`}>[ GLOBAL ]</button>
+            <button onClick={() => setActiveTab('personal')} className={`transition-all duration-300 ${activeTab === 'personal' ? 'text-neon-pink drop-shadow-[0_0_5px_rgba(255,0,255,0.8)]' : 'text-neon-pink/40 hover:text-neon-pink/80'}`}>[ PERSONAL ]</button>
+          </div>
+        </div>
+        <button onClick={() => navigate('menu')} className="text-neon-cyan/40 hover:text-neon-pink transition-colors text-sm tracking-[0.2em] uppercase">
+          &lt; EXIT_NODE
         </button>
       </div>
 
       {/* GAME SELECTOR */}
-      <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-4 mb-4">
-        <button 
-          onClick={() => setActiveGame('snake')}
-          className={`flex-1 py-1 border transition-all duration-300 chamfer-btn text-xs md:text-base ${activeGame === 'snake' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan bg-black/50'}`}
-        >
-          GAME: NEURAL_SNAKE
-        </button>
-        <button 
-          onClick={() => setActiveGame('tetris')}
-          className={`flex-1 py-1 border transition-all duration-300 chamfer-btn text-xs md:text-base ${activeGame === 'tetris' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan bg-black/50'}`}
-        >
-          GAME: BLOCK_ENCRYPT
-        </button>
-      <button 
-        onClick={() => setActiveGame('spaceinvaders')}
-        className={`flex-1 py-1 border transition-all duration-300 chamfer-btn text-xs md:text-base ${activeGame === 'spaceinvaders' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan bg-black/50'}`}
-      >
-        GAME: ALIEN_THREAT
-      </button>
-        <button 
-          onClick={() => setActiveGame('breakout')}
-          className={`flex-1 py-1 border transition-all duration-300 chamfer-btn text-xs md:text-base ${activeGame === 'breakout' ? 'bg-neon-cyan/20 text-white border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]' : 'text-neon-cyan/50 border-neon-cyan/20 hover:border-neon-cyan/50 hover:text-neon-cyan bg-black/50'}`}
-        >
-          GAME: FIREWALL_BREACH
-        </button>
+      <div className="flex gap-8 mb-6 text-sm tracking-[0.2em] uppercase px-4 shrink-0 overflow-x-auto custom-scrollbar pb-2">
+        {[{id: 'snake', label: 'NEURAL_SNAKE'}, {id: 'tetris', label: 'BLOCK_ENCRYPT'}, {id: 'spaceinvaders', label: 'ALIEN_THREAT'}, {id: 'breakout', label: 'FIREWALL_BREACH'}].map(game => (
+          <button 
+            key={game.id} onClick={() => setActiveGame(game.id)}
+            className={`transition-all duration-300 relative pb-1 whitespace-nowrap ${activeGame === game.id ? 'text-neon-cyan' : 'text-neon-cyan/40 hover:text-neon-cyan/80'}`}
+          >
+            {game.label}
+            {activeGame === game.id && <span className="absolute bottom-0 left-0 w-full h-[1px] bg-neon-cyan shadow-[0_0_8px_rgba(0,243,255,0.8)]" />}
+          </button>
+        ))}
       </div>
 
-      {/* TABS */}
-      <div className="flex gap-2 md:gap-4 mb-4 md:mb-6">
-        <button 
-          onClick={() => setActiveTab('global')}
-          className={`flex-1 py-2 border-2 transition-all duration-300 chamfer-btn text-xs md:text-base ${activeTab === 'global' ? 'bg-neon-cyan text-black border-neon-cyan shadow-neon' : 'bg-black/50 text-neon-cyan border-neon-cyan/30 hover:border-neon-cyan'}`}
-        >
-          GLOBAL_NET_SCORES
-        </button>
-        <button 
-          onClick={() => setActiveTab('personal')}
-          className={`flex-1 py-2 border-2 transition-all duration-300 chamfer-btn text-xs md:text-base ${activeTab === 'personal' ? 'bg-neon-pink text-black border-neon-pink shadow-neon-pink' : 'bg-black/50 text-neon-pink border-neon-pink/30 hover:border-neon-pink'}`}
-        >
-          PERSONAL_RECORDS ({user || 'GHOST'})
-        </button>
+      {/* TABLE HEADER */}
+      <div className="hidden md:flex border-b border-white/5 pb-2 mb-2 text-white/30 text-xs tracking-[0.4em] uppercase px-6">
+        <div className="w-12 text-center">RNK</div>
+        <div className="flex-1 pl-0">AGENT_ID</div>
+        <div className="w-24 text-right mr-12">LOG_DATE</div>
+        <div className="w-32 text-right">CREDITS</div>
       </div>
 
       {/* LISTE */}
-      <div className="grid grid-cols-1 gap-2 overflow-y-auto flex-1 min-h-0 pr-2 md:pr-4 custom-scrollbar">
+      <div className="flex flex-col gap-1 overflow-y-auto flex-1 min-h-0 pr-2 md:pr-4 custom-scrollbar">
         {loading ? (
-          <div className="text-center py-20 text-neon-cyan animate-pulse text-2xl uppercase tracking-[0.5em]">
-            Accessing_Database...
+          <div className="text-center py-20 text-white/50 animate-pulse text-xl uppercase tracking-[0.5em]">
+            Decrypting_Records...
           </div>
         ) : scores.length > 0 ? (
           scores.map((entry, i) => (
             <div 
               key={entry.id} 
               id={`rank-row-${entry.username ? entry.username.toUpperCase() : 'ANONYMOUS'}`}
-              className={`flex items-center justify-between p-2 md:p-3 border transition-all duration-300 group relative ${
+              className={`flex items-center justify-between py-3 px-2 md:px-6 transition-all duration-300 group relative border-b border-white/5 last:border-b-0 ${
                 entry.username?.toUpperCase() === user?.toUpperCase()
-                  ? 'bg-neon-cyan/20 border-neon-cyan shadow-[0_0_10px_rgba(0,243,255,0.3)]'
-                  : 'bg-black/40 border-neon-cyan/10 hover:bg-neon-cyan/20 hover:border-neon-cyan/50'
+                  ? 'bg-neon-cyan/5 border-l-2 border-neon-cyan shadow-[inset_20px_0_20px_-20px_rgba(0,243,255,0.2)]'
+                  : 'bg-transparent border-l-2 border-transparent hover:bg-white/5'
               }`}
             >
-              {i === 0 && <div className="absolute left-0 top-0 bottom-0 w-1 md:w-1.5 bg-neon-pink shadow-[0_0_15px_rgba(255,0,255,0.8)]" />}
-              {i === 1 && <div className="absolute left-0 top-0 bottom-0 w-1 md:w-1.5 bg-neon-cyan shadow-[0_0_15px_rgba(0,243,255,0.8)]" />}
-              {i === 2 && <div className="absolute left-0 top-0 bottom-0 w-1 md:w-1.5 bg-neon-green shadow-[0_0_15px_rgba(0,255,65,0.8)]" />}
+              {i === 0 && <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-neon-pink shadow-[0_0_8px_rgba(255,0,255,0.8)]" />}
+              {i === 1 && <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-neon-cyan shadow-[0_0_8px_rgba(0,243,255,0.8)]" />}
+              {i === 2 && <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-neon-green shadow-[0_0_8px_rgba(0,255,65,0.8)]" />}
               
-              <div className="flex items-center gap-2 md:gap-4 pl-2 md:pl-4 flex-1 min-w-0">
-                <span className={`w-6 md:w-8 text-center text-sm md:text-xl shrink-0 ${i === 0 ? 'text-neon-pink' : i === 1 ? 'text-neon-cyan' : i === 2 ? 'text-neon-green' : 'opacity-40'}`}>
-                  {i + 1}
+              <div className="flex items-center gap-2 md:gap-6 pl-2 md:pl-0 flex-1 min-w-0">
+                <span className={`w-8 md:w-12 text-center text-sm md:text-base shrink-0 tracking-widest ${i === 0 ? 'text-neon-pink' : i === 1 ? 'text-neon-cyan' : i === 2 ? 'text-neon-green' : 'text-white/30'}`}>
+                  {(i + 1).toString().padStart(2, '0')}
                 </span>
-                <span className="text-base md:text-xl tracking-widest group-hover:text-white group-hover:translate-x-1 transition-all truncate flex-1">
+                <span className={`text-base md:text-lg tracking-[0.2em] transition-all truncate flex-1 ${i === 0 ? 'text-white' : 'text-neon-cyan/60 group-hover:text-neon-cyan'}`}>
                   {entry.username ? entry.username.toUpperCase() : 'ANONYMOUS'}
                 </span>
               </div>
               <div className="flex items-center gap-4 md:gap-12 shrink-0">
-                <span className="text-neon-cyan/40 text-xs md:text-sm hidden md:block uppercase group-hover:text-neon-cyan/80 transition-colors">
+                <span className="w-24 text-right text-white/30 text-xs md:text-sm hidden md:block uppercase group-hover:text-white/60 transition-colors tracking-wider">
                   {entry.created_at ? new Date(entry.created_at).toLocaleDateString() : 'N/A'}
                 </span>
-                <span className={`text-lg md:text-2xl tabular-nums w-20 md:w-32 text-right shrink-0 ${i === 0 ? 'text-neon-pink shadow-neon' : i === 1 ? 'text-neon-cyan shadow-neon' : i === 2 ? 'text-neon-green shadow-neon' : 'text-white shadow-neon'}`}>
-                  {entry.score.toLocaleString()}
+                <span className={`text-lg md:text-xl tabular-nums tracking-[0.1em] w-20 md:w-32 text-right shrink-0 ${i === 0 ? 'text-neon-pink drop-shadow-[0_0_5px_rgba(255,0,255,0.5)]' : i === 1 ? 'text-neon-cyan drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : i === 2 ? 'text-neon-green' : 'text-white/80'}`}>
+                  {entry.score.toString().padStart(7, '0')}
                 </span>
               </div>
             </div>
           ))
         ) : (
-          <div className="text-center py-20 text-neon-pink/50 text-2xl italic border border-neon-pink/20 bg-neon-pink/5">
+          <div className="text-center py-20 text-neon-pink/50 text-xl tracking-widest border border-white/5 bg-white/5 rounded-lg">
             {activeTab === 'personal' && !user 
               ? 'ACCESS_DENIED: LOGIN_REQUIRED_FOR_PERSONAL_DATA' 
               : 'NO_DATA_FOUND_IN_THIS_SECTOR'}
@@ -240,26 +220,29 @@ export default function LeaderboardView() {
 
       {/* EIGENER RANG */}
       {activeTab === 'global' && user && (
-        <div className="mt-2 md:mt-4 pt-2 md:pt-4 border-t-2 border-neon-cyan/30 flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 p-2 md:px-4 bg-neon-cyan/10 border-b md:pb-4 shrink-0">
-          <span className="text-base md:text-xl text-neon-cyan tracking-widest uppercase text-center md:text-left">AGENT_RANK // {user.toUpperCase()}:</span>
-          <div className="flex items-center gap-3 md:gap-6">
+        <div className="mt-6 pt-4 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0 px-4 shrink-0">
+          <div className="flex items-center gap-4">
+            <span className="text-xs md:text-sm text-white/40 tracking-[0.2em] uppercase">Current_Agent:</span>
+            <span className="text-sm md:text-base text-neon-cyan tracking-widest uppercase">{user.toUpperCase()}</span>
+          </div>
+          <div className="flex items-center gap-6">
             {userRank && userRank <= scores.length && (
               <button 
                 onClick={scrollToMyRank}
-                className="text-xs md:text-sm uppercase border border-neon-cyan px-2 md:px-4 py-1 text-neon-cyan hover:bg-neon-cyan hover:text-black transition-all shadow-[0_0_10px_rgba(0,243,255,0.2)]"
+                className="text-xs uppercase tracking-widest text-white/40 hover:text-neon-cyan transition-colors"
               >
-                [ JUMP_TO_POSITION ]
+                [ LOCATE ]
               </button>
             )}
-            <span className="text-2xl md:text-4xl text-neon-pink [text-shadow:0_0_15px_rgba(255,0,255,0.8)] font-bold">
-              {userRank ? `#${userRank}` : 'UNRANKED'}
+            <span className="text-lg md:text-xl text-white tracking-[0.2em]">
+              {userRank ? `RNK ${userRank.toString().padStart(3, '0')}` : 'UNRANKED'}
             </span>
           </div>
         </div>
       )}
 
       {/* DECORATION */}
-      <div className="mt-6 flex justify-between text-[10px] text-neon-cyan/30 uppercase tracking-[0.2em] shrink-0">
+      <div className="mt-4 flex justify-between text-[10px] text-white/20 uppercase tracking-[0.3em] shrink-0 px-4">
         <span>Encryption: AES-256</span>
         <span>Source: Neural_Link_Cloud</span>
       </div>

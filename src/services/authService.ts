@@ -21,7 +21,7 @@ class AuthService {
       .from('profiles')
       .select('username')
       .eq('id', data.user.id)
-      .single();
+      .maybeSingle();
 
     const userData = {
       id: data.user.id,
@@ -33,45 +33,51 @@ class AuthService {
     return userData;
   }
 
+  // REGISTER
   async register(email: string, password: string, username: string): Promise<UserData> {
   // 1. Auth Signup
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        username: username // <-- Hier wird der Wunschname an den Datenbank-Trigger übergeben!
+      }
+    }
   });
 
   // Wenn der Error 422 hier kommt, liegt es an den Supabase-Email-Settings!
   if (authError) throw new Error(`AUTH_ERROR: ${authError.message}`);
 
-  if (authData.user) {
-    // 2. Profil erstellen
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert([
-        { 
-          id: authData.user.id, 
-          username: username.toUpperCase(), 
-          email: email 
-        }
-      ]);
-
-    if (profileError) {
-      console.error("Profile Insert Error:", profileError);
-      throw new Error(`PROFILE_ERROR: ${profileError.message}`);
-    }
-  }
-
   return this.login(email, password);
 }
 
+  // GET CURRENT USER
   getCurrentUser(): UserData | null {
     const saved = localStorage.getItem('cyberdeck_user');
     return saved ? JSON.parse(saved) : null;
   }
 
+  // LOGOUT
   async logout() {
-    await supabase.auth.signOut();
+    // Fehler bei signOut (wie 403 nach Account-Löschung) fangen und ignorieren wir absichtlich
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn("Logout_Notice: Session already terminated.");
+    }
+    
     localStorage.removeItem('cyberdeck_user');
+  }
+
+  // DELETE ACCOUNT
+  async deleteAccount(): Promise<void> {
+    // 1. Ruft die sichere Postgres-Funktion auf, die wir in Supabase per SQL erstellt haben
+    const { error } = await supabase.rpc('delete_user');
+    if (error) throw new Error(error.message);
+
+    // 2. Lokalen Storage leeren und Session beenden
+    await this.logout();
   }
 }
 
